@@ -57,7 +57,7 @@ class AntibotTest extends AbstractTestBase
      */
     public function testPrefix()
     {
-        $antibot = new Antibot([]);
+        $antibot = new Antibot([], md5(rand()));
         $this->assertInstanceOf(Antibot::class, $antibot);
         $this->assertEquals(Antibot::DEFAULT_PREFIX, $antibot->getPrefix());
 
@@ -73,7 +73,7 @@ class AntibotTest extends AbstractTestBase
      */
     public function testValidation()
     {
-        $antibot = new Antibot([]);
+        $antibot = new Antibot([], md5(rand()));
         $this->assertInstanceOf(Antibot::class, $antibot);
 
         // Add a whitelist validator

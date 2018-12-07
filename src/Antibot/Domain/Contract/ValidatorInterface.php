@@ -63,4 +63,14 @@ interface ValidatorInterface
      * @return bool
      */
     public function validate(ServerRequestInterface $request, Antibot $antibot): bool;
+
+    /**
+     * Create protective form HTML
+     *
+     * @param ServerRequestInterface $request Request
+     * @param Antibot $antibot                Antibot instance
+     *
+     * @return string Form HTML
+     */
+    public function armor(ServerRequestInterface $request, Antibot $antibot): string;
 }

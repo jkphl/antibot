@@ -36,7 +36,9 @@
 
 namespace Jkphl\Antibot\Infrastructure\Model;
 
+use Jkphl\Antibot\Domain\Antibot;
 use Jkphl\Antibot\Ports\Contract\ValidatorInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Abstract Base Validator
@@ -61,5 +63,18 @@ abstract class AbstractValidator extends \Jkphl\Antibot\Domain\Model\AbstractVal
     public function getPosition(): int
     {
         return static::POSITION;
+    }
+
+    /**
+     * Create protective form HTML
+     *
+     * @param ServerRequestInterface $request Request
+     * @param Antibot $antibot                Antibot instance
+     *
+     * @return string Form HTML
+     */
+    public function armor(ServerRequestInterface $request, Antibot $antibot): string
+    {
+        return '';
     }
 }

@@ -5,7 +5,7 @@
  *
  * @category   Jkphl
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Infrastructure\Factory
+ * @subpackage Jkphl\Antibot\Domain\Exceptions
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
@@ -34,25 +34,38 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Infrastructure\Factory;
+namespace Jkphl\Antibot\Domain\Exceptions;
 
 /**
- * Fingerprint Factory
+ * Runtime Exception
  *
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Infrastructure\Factory
+ * @subpackage Jkphl\Antibot\Domain\Exceptions
  */
-class FingerprintFactory
+class RuntimeException extends \RuntimeException
 {
     /**
-     * Create an MD5 fingerprint for a configuration array
+     * Immutable instance
      *
-     * @param array $config Configuration array
-     *
-     * @return string MD5 fingerprint
+     * @var string
      */
-    public static function createFromArray(array $config): string
-    {
-        return md5(serialize($config));
-    }
+    const ANTIBOT_IMMUTABLE_STR = 'Unable to modify immutable instance';
+    /**
+     * Immutable instance
+     *
+     * @var int
+     */
+    const ANTIBOT_IMMUTABLE = 1544184411;
+    /**
+     * Initialize first
+     *
+     * @var string
+     */
+    const ANTIBOT_INITIALIZE_STR = 'Antibot needs to be initialized first';
+    /**
+     * Initialize first
+     *
+     * @var int
+     */
+    const ANTIBOT_INITIALIZE = 1544191654;
 }

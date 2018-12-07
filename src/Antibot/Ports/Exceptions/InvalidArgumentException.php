@@ -81,6 +81,18 @@ class InvalidArgumentException extends \Jkphl\Antibot\Domain\Exceptions\InvalidA
      */
     const INVALID_PARAMETER_NAME = 1544178707;
     /**
+     * Invalid request method
+     *
+     * @var string
+     */
+    const INVALID_REQUEST_METHOD_STR = 'Invalid request method "%s"';
+    /**
+     * Invalid request method
+     *
+     * @var int
+     */
+    const INVALID_REQUEST_METHOD = 1544187532;
+    /**
      * Unknown IP address
      *
      * @var string

@@ -39,6 +39,7 @@ namespace Jkphl\Antibot\Domain;
 use Jkphl\Antibot\Domain\Contract\ActorInterface;
 use Jkphl\Antibot\Domain\Contract\ValidatorInterface;
 use Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException;
+use Jkphl\Antibot\Domain\Exceptions\RuntimeException;
 use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
 use Jkphl\Antibot\Domain\Model\ValidationResult;
 use Psr\Http\Message\ServerRequestInterface;
@@ -58,11 +59,35 @@ class Antibot
      */
     protected $config;
     /**
+     * Session persistent, unique token
+     *
+     * @var string
+     */
+    protected $unique;
+    /**
      * Antibot prefix
      *
      * @var string
      */
     protected $prefix;
+    /**
+     * Unique signature
+     *
+     * @var string
+     */
+    protected $signature;
+    /**
+     * Parameter prefix
+     *
+     * @var string
+     */
+    protected $parameterPrefix;
+    /**
+     * GET & POST data
+     *
+     * @var null|string[]
+     */
+    protected $data = null;
     /**
      * Validators
      *
@@ -76,11 +101,31 @@ class Antibot
      */
     protected $actors = [];
     /**
+     * Immutable instance
+     *
+     * @var bool
+     */
+    protected $immutable = false;
+    /**
      * Default antibot prefix
      *
      * @var string
      */
     const DEFAULT_PREFIX = 'antibot';
+
+    /**
+     * Antibot constructor
+     *
+     * @param array $config  Configuration
+     * @param string $unique Session-persistent, unique key
+     * @param string $prefix Prefix
+     */
+    public function __construct($config, string $unique, string $prefix = self::DEFAULT_PREFIX)
+    {
+        $this->config = $config;
+        $this->unique = $unique;
+        $this->prefix = $prefix;
+    }
 
     /**
      * Return the prefix
@@ -93,6 +138,42 @@ class Antibot
     }
 
     /**
+     * Return the parameter prefix
+     *
+     * @return string Parameter prefix
+     * @throws RuntimeException If Antibot needs to be initialized
+     */
+    public function getParameterPrefix(): string
+    {
+        // If Antibot needs to be initialized
+        if (!$this->immutable) {
+            throw new RuntimeException(RuntimeException::ANTIBOT_INITIALIZE_STR, RuntimeException::ANTIBOT_INITIALIZE);
+        }
+
+        return $this->parameterPrefix;
+    }
+
+    /**
+     * Return the session persistent, unique token
+     *
+     * @return string Session persistent, unique token
+     */
+    public function getUnique(): string
+    {
+        return $this->unique;
+    }
+
+    /**
+     * Return the submitted Antibot data
+     *
+     * @return string[] Antibot data
+     */
+    public function getData(): ?array
+    {
+        return $this->data;
+    }
+
+    /**
      * Validate a request
      *
      * @param ServerRequestInterface $request Request
@@ -101,8 +182,8 @@ class Antibot
      */
     public function validate(ServerRequestInterface $request): ValidationResult
     {
+        $this->initialize($request);
         $result = new ValidationResult();
-        usort($this->validators, [$this, 'sortValidators']);
 
         // Run through all validators (in order)
         /** @var ValidatorInterface $validator */
@@ -128,6 +209,30 @@ class Antibot
     }
 
     /**
+     * Return the Antibot armor
+     *
+     * @param ServerRequestInterface $request Request
+     *
+     * @return string Antibot armor
+     */
+    public function armor(ServerRequestInterface $request): string
+    {
+        $this->initialize($request);
+        $armor = [];
+
+        // Run through all validators (in order)
+        /** @var ValidatorInterface $validator */
+        foreach ($this->validators as $validator) {
+            $validatorArmor = $validator->armor($request, $this);
+            if (!empty($validatorArmor)) {
+                $armor[] = $validatorArmor;
+            }
+        }
+
+        return implode('', $armor);
+    }
+
+    /**
      * Compare and sort validators
      *
      * @param ValidatorInterface $validator1 Validator 1
@@ -144,5 +249,60 @@ class Antibot
         }
 
         return ($validatorPos1 > $validatorPos2) ? 1 : -1;
+    }
+
+    /**
+     * Pre-validation initialization
+     *
+     * @param ServerRequestInterface $request Request
+     */
+    protected function initialize(ServerRequestInterface $request): void
+    {
+        usort($this->validators, [$this, 'sortValidators']);
+        $this->immutable       = true;
+        $this->signature       = $this->calculateSignature();
+        $this->parameterPrefix = $this->prefix.'_'.$this->signature;
+        $this->extractData($request);
+    }
+
+    /**
+     * Calculate the unique signature
+     *
+     * @return string Signature
+     */
+    protected function calculateSignature(): string
+    {
+        $params = [$this->prefix, $this->config, $this->validators, $this->actors];
+
+        return sha1($this->unique.serialize($params));
+    }
+
+    /**
+     * Extract the antibot data from GET and POST parameters
+     *
+     * @param ServerRequestInterface $request Request
+     */
+    protected function extractData(ServerRequestInterface $request): void
+    {
+        $get        = $request->getQueryParams();
+        $get        = empty($get[$this->parameterPrefix]) ? null : $get[$this->parameterPrefix];
+        $post       = $request->getParsedBody();
+        $post       = empty($post[$this->parameterPrefix]) ? null : $post[$this->parameterPrefix];
+        $this->data = (($get !== null) || ($post !== null)) ? array_merge((array)$get, (array)$post) : null;
+    }
+
+    /**
+     * Check whether this Antibot instance is immutable
+     *
+     * @throws RuntimeException If the Antibot instance is immutable
+     */
+    protected function checkImmutable(): void
+    {
+        if ($this->immutable) {
+            throw new RuntimeException(
+                RuntimeException::ANTIBOT_IMMUTABLE_STR,
+                RuntimeException::ANTIBOT_IMMUTABLE
+            );
+        }
     }
 }

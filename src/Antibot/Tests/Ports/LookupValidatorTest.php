@@ -61,11 +61,11 @@ class LookupValidatorTest extends AbstractTestBase
         $request               = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
         $arrayWhitelist1       = new ArrayLookupStrategy(['4.3.2.1']);
         $ipWhitelistValidator1 = new IpWhitelistValidator($arrayWhitelist1);
-        $this->assertTrue($ipWhitelistValidator1->validate($request, new Antibot()));
+        $this->assertTrue($ipWhitelistValidator1->validate($request, new Antibot([], md5(rand()))));
 
         $arrayWhitelist2       = new ArrayLookupStrategy(['1.2.3.4']);
         $ipWhitelistValidator2 = new IpWhitelistValidator($arrayWhitelist2);
-        $ipWhitelistValidator2->validate($request, new Antibot());
+        $ipWhitelistValidator2->validate($request, new Antibot([], md5(rand())));
     }
 
     /**
@@ -78,11 +78,11 @@ class LookupValidatorTest extends AbstractTestBase
         $request               = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
         $arrayBlacklist1       = new ArrayLookupStrategy(['4.3.2.1']);
         $ipBlacklistValidator1 = new IpBlacklistValidator($arrayBlacklist1);
-        $this->assertTrue($ipBlacklistValidator1->validate($request, new Antibot()));
+        $this->assertTrue($ipBlacklistValidator1->validate($request, new Antibot([], md5(rand()))));
 
         $arrayBlacklist2       = new ArrayLookupStrategy(['1.2.3.4']);
         $ipBlacklistValidator2 = new IpBlacklistValidator($arrayBlacklist2);
-        $ipBlacklistValidator2->validate($request, new Antibot());
+        $ipBlacklistValidator2->validate($request, new Antibot([], md5(rand())));
     }
 
     /**
@@ -98,11 +98,11 @@ class LookupValidatorTest extends AbstractTestBase
         );
         $arrayBlacklist1          = new ArrayLookupStrategy(['john@doe.com']);
         $paramBlacklistValidator1 = new ParameterBlacklistValidator($arrayBlacklist1, 'email');
-        $this->assertTrue($paramBlacklistValidator1->validate($request, new Antibot()));
+        $this->assertTrue($paramBlacklistValidator1->validate($request, new Antibot([], md5(rand()))));
 
         $arrayBlacklist2          = new ArrayLookupStrategy(['test@example.com']);
         $paramBlacklistValidator2 = new ParameterBlacklistValidator($arrayBlacklist2, 'email');
-        $paramBlacklistValidator2->validate($request, new Antibot());
+        $paramBlacklistValidator2->validate($request, new Antibot([], md5(rand())));
     }
 
     /**
@@ -123,7 +123,7 @@ class LookupValidatorTest extends AbstractTestBase
             'email',
             ParameterBlacklistValidator::POST
         );
-        $this->assertTrue($paramBlacklistValidator1->validate($request, new Antibot()));
+        $this->assertTrue($paramBlacklistValidator1->validate($request, new Antibot([], md5(rand()))));
 
         $arrayBlacklist2          = new ArrayLookupStrategy(['test@example.com']);
         $paramBlacklistValidator2 = new ParameterBlacklistValidator(
@@ -131,6 +131,6 @@ class LookupValidatorTest extends AbstractTestBase
             'email',
             ParameterBlacklistValidator::POST
         );
-        $paramBlacklistValidator2->validate($request, new Antibot());
+        $paramBlacklistValidator2->validate($request, new Antibot([], md5(rand())));
     }
 }

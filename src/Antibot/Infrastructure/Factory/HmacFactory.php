@@ -5,7 +5,7 @@
  *
  * @category   Jkphl
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Tests\Infrastructure
+ * @subpackage Jkphl\Antibot\Infrastructure\Factory
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
@@ -34,26 +34,45 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Tests\Infrastructure;
-
-use Jkphl\Antibot\Infrastructure\Factory\FingerprintFactory;
-use Jkphl\Antibot\Tests\AbstractTestBase;
+namespace Jkphl\Antibot\Infrastructure\Factory;
 
 /**
- * Fingerprint Factory Test
+ * HMAC factory
  *
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Tests\Infrastructure
+ * @subpackage Jkphl\Antibot\Infrastructure\Factory
  */
-class FingerprintFactoryTest extends AbstractTestBase
+class HmacFactory
 {
     /**
-     * Test the factory
+     * Returns a proper HMAC on a given input string and encryption key.
+     *
+     * @param string $input  Input string to create HMAC from
+     * @param string $secret Secret to prevent hmac being used in a different context
+     *
+     * @return string resulting (hexadecimal) HMAC currently with a length of 40 (HMAC-SHA-1)
      */
-    public function testFactory()
+    public static function createFromString(string $input, $secret = ''): string
     {
-        $config      = [1, 'two', [3], (object)['key' => 'value']];
-        $fingerprint = FingerprintFactory::createFromArray($config);
-        $this->assertEquals('05154a6adf68d8ced45be7a682ab668a', $fingerprint);
+        $hashAlgorithm = 'sha1';
+        $hashBlocksize = 64;
+        if (extension_loaded('hash')
+            && function_exists('hash_hmac')
+            && function_exists('hash_algos')
+            && in_array($hashAlgorithm, hash_algos())) {
+            $hmac = hash_hmac($hashAlgorithm, $input, $secret);
+        } else {
+            $opad = str_repeat(chr(92), $hashBlocksize);
+            $ipad = str_repeat(chr(54), $hashBlocksize);
+            if (strlen($secret) > $hashBlocksize) {
+                $key = str_pad(pack('H*', call_user_func($hashAlgorithm, $secret)), $hashBlocksize, chr(0));
+            } else {
+                $key = str_pad($secret, $hashBlocksize, chr(0));
+            }
+            $hmac = call_user_func($hashAlgorithm,
+                ($key ^ $opad).pack('H*', call_user_func($hashAlgorithm, (($key ^ $ipad).$input))));
+        }
+
+        return $hmac;
     }
 }

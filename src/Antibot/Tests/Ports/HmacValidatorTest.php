@@ -5,7 +5,7 @@
  *
  * @category   Jkphl
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Ports
+ * @subpackage Jkphl\Antibot\Tests\Ports
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
@@ -34,56 +34,36 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Ports;
+namespace Jkphl\Antibot\Tests\Ports;
 
-use Jkphl\Antibot\Ports\Contract\ActorInterface;
-use Jkphl\Antibot\Ports\Contract\ValidatorInterface;
-use Jkphl\Antibot\Ports\Exceptions\InvalidArgumentException;
+use Jkphl\Antibot\Ports\Antibot;
+use Jkphl\Antibot\Ports\Validators\HmacValidator;
+use Jkphl\Antibot\Tests\AbstractTestBase;
 
 /**
- * Antibot Facade
+ * HMAC Validator Test
  *
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Ports
+ * @subpackage Jkphl\Antibot\Tests\Ports
  */
-class Antibot extends \Jkphl\Antibot\Domain\Antibot
+class HmacValidatorTest extends AbstractTestBase
 {
     /**
-     * Add a validator
-     *
-     * @param ValidatorInterface $validator Validator
+     * Test the armoring
      */
-    public function addValidator(ValidatorInterface $validator): void
+    public function testArmor(): void
     {
-        $this->checkImmutable();
-        $this->validators[] = $validator;
-    }
-
-    /**
-     * Add an actor
-     *
-     * @param ActorInterface $actor Actor
-     */
-    public function addActor(ActorInterface $actor): void
-    {
-        $this->checkImmutable();
-        $this->actors[] = $actor;
-    }
-
-    /**
-     * Set the prefix
-     *
-     * @param string $prefix Prefix
-     */
-    public function setPrefix(string $prefix): void
-    {
-        $prefix = trim($prefix);
-        if (!strlen($prefix)) {
-            throw new InvalidArgumentException(
-                sprintf(InvalidArgumentException::INVALID_PREFIX_STR, $prefix),
-                InvalidArgumentException::INVALID_PREFIX
-            );
-        }
-        $this->prefix = $prefix;
+        $sessionId     = md5(rand());
+        $antibot       = new Antibot([], $sessionId);
+        $request       = $this->createRequest(
+            ['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'],
+            ['name' => 'John Doe', 'email' => 'test@example.com']
+        );
+        $hmacValidator = new HmacValidator();
+        $hmacValidator->setMethodVector(HmacValidator::METHOD_GET, HmacValidator::METHOD_POST);
+        $hmacValidator->setSubmissionTimes(1800, 10, 3);
+        $antibot->addValidator($hmacValidator);
+        echo $armor = $antibot->armor($request);
+        $this->assertTrue(strlen($armor) > 0);
     }
 }
