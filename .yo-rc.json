@@ -1,0 +1,27 @@
+{
+  "generator-clearphp": {
+    "run": 31,
+    "github": {
+      "ssh": "git@github.com:jkphl/antibot.git",
+      "https": "https://github.com/jkphl/antibot"
+    },
+    "codeclimate": "a8357ca942e8263ba7b9144f3375674cb4ce7fa9f2edb0b385182f6fb91dec8e",
+    "scrutinizer": true,
+    "coverage": true,
+    "docs": false,
+    "apidocs": false,
+    "year": 2018,
+    "vendor": "jkphl",
+    "project": "antibot",
+    "description": "Death to spambots! CAPTCHA-less form validation",
+    "website": "https://github.com/jkphl/antibot",
+    "license": "MIT",
+    "stability": "RC",
+    "namespace": "Jkphl",
+    "module": "Antibot",
+    "php": ">=7.2",
+    "authorName": "Joschi Kuphal",
+    "authorEmail": "joschi@tollwerk.de",
+    "authorWebsite": "https://jkphl.is"
+  }
+}

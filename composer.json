@@ -1,0 +1,53 @@
+{
+    "name": "jkphl/antibot",
+    "description": "Death to spambots! CAPTCHA-less form validation",
+    "homepage": "https://github.com/jkphl/antibot",
+    "minimum-stability": "RC",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joschi Kuphal",
+            "email": "joschi@tollwerk.de",
+            "homepage": "https://jkphl.is",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "joschi@tollwerk.de",
+        "source": "https://github.com/jkphl/antibot",
+        "issues": "https://github.com/jkphl/antibot/issues"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "repositories": {
+        "graph-composer": {
+            "type": "git",
+            "url": "https://github.com/jkphl/graph-composer"
+        }
+    },
+    "require": {
+        "php": ">=7.2",
+        "jkphl/elevator": "^0.1.0",
+        "nyholm/psr7": "^1.0",
+        "nyholm/psr7-server": "^0.3.0"
+    },
+    "require-dev": {
+        "clue/graph-composer": "dev-master",
+        "php-coveralls/php-coveralls": "^2.1",
+        "phpunit/phpunit": "^7.2",
+        "squizlabs/php_codesniffer": "^3.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jkphl\\": "src/"
+        }
+    },
+    "scripts": {
+        "phpunit": "vendor/bin/phpunit --configuration phpunit.xml.dist",
+        "depgraph": "vendor/bin/graph-composer --no-dev export . doc/dependencies.svg",
+        "check-style": "vendor/bin/phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src",
+        "fix-style": "vendor/bin/phpcbf -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src",
+        "test": "@phpunit"
+    }
+}
