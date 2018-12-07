@@ -97,10 +97,38 @@ class ParameterBlacklistValidator extends AbstractLookupValidator
      * @param Antibot $antibot                Antibot instance
      *
      * @return bool
-     * @throws InvalidArgumentException If the parameter type is invalid
      * @throws InvalidArgumentException If the parameter name is invalid
      */
     public function validate(ServerRequestInterface $request, Antibot $antibot): bool
+    {
+        // If the parameter name is invalid
+        if (empty($this->parameter)) {
+            throw new InvalidArgumentException(
+                InvalidArgumentException::INVALID_PARAMETER_NAME_STR,
+                InvalidArgumentException::INVALID_PARAMETER_NAME
+            );
+        }
+
+        $params = $this->getParams($request);
+
+        // If the parameter is present
+        if (array_key_exists($this->parameter, $params)
+            && $this->strategy->lookup($params[$this->parameter])) {
+            throw new BlacklistValidationException($this->parameter);
+        }
+
+        return true;
+    }
+
+    /**
+     * Return the parameter stack to use
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return array Parameters
+     * @throws InvalidArgumentException If the parameter type is invalid
+     */
+    protected function getParams(ServerRequestInterface $request): array
     {
         switch ($this->type) {
             case static::GET:
@@ -116,20 +144,6 @@ class ParameterBlacklistValidator extends AbstractLookupValidator
                 );
         }
 
-        // If the parameter name is invalid
-        if (empty($this->parameter)) {
-            throw new InvalidArgumentException(
-                InvalidArgumentException::INVALID_PARAMETER_NAME_STR,
-                InvalidArgumentException::INVALID_PARAMETER_NAME
-            );
-        }
-
-        // If the parameter is present
-        if (array_key_exists($this->parameter, $params)
-            && $this->strategy->lookup($params[$this->parameter])) {
-            throw new BlacklistValidationException($this->parameter);
-        }
-
-        return true;
+        return $params;
     }
 }
