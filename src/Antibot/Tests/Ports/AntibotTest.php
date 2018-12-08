@@ -57,7 +57,7 @@ class AntibotTest extends AbstractTestBase
      */
     public function testPrefix()
     {
-        $antibot = new Antibot([], md5(rand()));
+        $antibot = $this->createAntibot();
         $this->assertInstanceOf(Antibot::class, $antibot);
         $this->assertEquals(Antibot::DEFAULT_PREFIX, $antibot->getPrefix());
 

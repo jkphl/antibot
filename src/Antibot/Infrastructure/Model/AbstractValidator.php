@@ -71,10 +71,10 @@ abstract class AbstractValidator extends \Jkphl\Antibot\Domain\Model\AbstractVal
      * @param ServerRequestInterface $request Request
      * @param Antibot $antibot                Antibot instance
      *
-     * @return string Form HTML
+     * @return InputElement[] HMTL input elements
      */
-    public function armor(ServerRequestInterface $request, Antibot $antibot): string
+    public function armor(ServerRequestInterface $request, Antibot $antibot): array
     {
-        return '';
+        return [];
     }
 }

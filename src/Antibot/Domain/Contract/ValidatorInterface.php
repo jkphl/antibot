@@ -37,6 +37,7 @@
 namespace Jkphl\Antibot\Domain\Contract;
 
 use Jkphl\Antibot\Domain\Antibot;
+use Jkphl\Antibot\Infrastructure\Model\InputElement;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -70,7 +71,7 @@ interface ValidatorInterface
      * @param ServerRequestInterface $request Request
      * @param Antibot $antibot                Antibot instance
      *
-     * @return string Form HTML
+     * @return InputElement[] HMTL input elements
      */
-    public function armor(ServerRequestInterface $request, Antibot $antibot): string;
+    public function armor(ServerRequestInterface $request, Antibot $antibot): array;
 }

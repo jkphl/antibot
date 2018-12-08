@@ -5,7 +5,7 @@
  *
  * @category   Jkphl
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Tests
+ * @subpackage Jkphl\Antibot\Infrastructure\Model
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
@@ -34,65 +34,56 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Tests;
-
-use Jkphl\Antibot\Ports\Antibot;
-use Nyholm\Psr7\Factory\Psr17Factory;
-use Nyholm\Psr7Server\ServerRequestCreator;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
+namespace Jkphl\Antibot\Infrastructure\Model;
 
 /**
- * Abstract PHPUnit Test Base
+ * Input Element
  *
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Tests
+ * @subpackage Jkphl\Antibot\Infrastructure\Model
  */
-class AbstractTestBase extends TestCase
+class InputElement
 {
     /**
-     * Create and return a server request
+     * Element Attributes
      *
-     * @param array $server $_SERVER data
-     * @param array $get    $_GET data
-     * @param array $post   $_POST data
-     *
-     * @return ServerRequestInterface Server request
+     * @var string[]
      */
-    protected function createRequest(array $server, array $get = [], array $post = []): ServerRequestInterface
-    {
-        $psr17Factory = new Psr17Factory();
-        $creator      = new ServerRequestCreator(
-            $psr17Factory, // ServerRequestFactory
-            $psr17Factory, // UriFactory
-            $psr17Factory, // UploadedFileFactory
-            $psr17Factory  // StreamFactory
-        );
+    protected $attributes;
 
-        return $creator->fromArrays(
-            $server, // $_SERVER
-            [], // Headers
-            [], // Cookies
-            $get, // GET
-            $post, // POST
-            [], // FILES
-            null // Body
-        );
+    /**
+     * Constructor
+     *
+     * @param string[] $attributes Element Attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        $this->attributes = $attributes;
     }
 
     /**
-     * Create an Antibot instance
+     * Return the Element attributes
      *
-     * @param string|null $session Session-persistent unique ID
-     *
-     * @return Antibot Antibot instance
+     * @return string[] Element attributes
      */
-    protected function createAntibot(string &$session = null): Antibot
+    public function getAttributes(): array
     {
-        if ($session === null) {
-            $session = md5(rand());
-        }
+        return $this->attributes;
+    }
 
-        return new Antibot([], $session);
+    /**
+     * Serialize the Input Element
+     *
+     * @return string HTML
+     */
+    public function __toString(): string
+    {
+        $html = '<input';
+        foreach ($this->attributes as $name => $value) {
+            $html .= ' '.htmlspecialchars($name).'="'.htmlspecialchars($value).'"';
+        }
+        $html .= '/>';
+
+        return $html;
     }
 }

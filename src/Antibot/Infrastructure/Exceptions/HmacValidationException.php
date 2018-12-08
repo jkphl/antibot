@@ -5,7 +5,7 @@
  *
  * @category   Jkphl
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Tests
+ * @subpackage Jkphl\Antibot\Infrastructure\Exceptions
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
@@ -34,65 +34,40 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Tests;
+namespace Jkphl\Antibot\Infrastructure\Exceptions;
 
-use Jkphl\Antibot\Ports\Antibot;
-use Nyholm\Psr7\Factory\Psr17Factory;
-use Nyholm\Psr7Server\ServerRequestCreator;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
+use Jkphl\Antibot\Domain\Exceptions\ErrorException;
 
 /**
- * Abstract PHPUnit Test Base
+ * HMAC Validation Exception
  *
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Tests
+ * @subpackage Jkphl\Antibot\Infrastructure\Exceptions
  */
-class AbstractTestBase extends TestCase
+class HmacValidationException extends ErrorException
 {
     /**
-     * Create and return a server request
+     * Invalid request method order
      *
-     * @param array $server $_SERVER data
-     * @param array $get    $_GET data
-     * @param array $post   $_POST data
-     *
-     * @return ServerRequestInterface Server request
+     * @var string
      */
-    protected function createRequest(array $server, array $get = [], array $post = []): ServerRequestInterface
-    {
-        $psr17Factory = new Psr17Factory();
-        $creator      = new ServerRequestCreator(
-            $psr17Factory, // ServerRequestFactory
-            $psr17Factory, // UriFactory
-            $psr17Factory, // UploadedFileFactory
-            $psr17Factory  // StreamFactory
-        );
-
-        return $creator->fromArrays(
-            $server, // $_SERVER
-            [], // Headers
-            [], // Cookies
-            $get, // GET
-            $post, // POST
-            [], // FILES
-            null // Body
-        );
-    }
-
+    const INVALID_REQUEST_METHOD_ORDER_STR = 'Invalid request method order';
     /**
-     * Create an Antibot instance
+     * Invalid request method order
      *
-     * @param string|null $session Session-persistent unique ID
-     *
-     * @return Antibot Antibot instance
+     * @var int
      */
-    protected function createAntibot(string &$session = null): Antibot
-    {
-        if ($session === null) {
-            $session = md5(rand());
-        }
-
-        return new Antibot([], $session);
-    }
+    const INVALID_REQUEST_METHOD_ORDER = 1544292604;
+    /**
+     * Invalid request timing
+     *
+     * @var string
+     */
+    const INVALID_REQUEST_TIMING_STR = 'Invalid request timing';
+    /**
+     * Invalid request timing
+     *
+     * @var int
+     */
+    const INVALID_REQUEST_TIMING = 1544292684;
 }

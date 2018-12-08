@@ -5,7 +5,7 @@
  *
  * @category   Jkphl
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Tests
+ * @subpackage Jkphl\Antibot\Domain\Exceptions
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
@@ -34,65 +34,17 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Tests;
+namespace Jkphl\Antibot\Domain\Exceptions;
 
-use Jkphl\Antibot\Ports\Antibot;
-use Nyholm\Psr7\Factory\Psr17Factory;
-use Nyholm\Psr7Server\ServerRequestCreator;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
+use Jkphl\Antibot\Domain\Contract\AntibotException;
 
 /**
- * Abstract PHPUnit Test Base
+ * Error Exception
  *
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Tests
+ * @subpackage Jkphl\Antibot\Domain\Exceptions
  */
-class AbstractTestBase extends TestCase
+class ErrorException extends \ErrorException implements AntibotException
 {
-    /**
-     * Create and return a server request
-     *
-     * @param array $server $_SERVER data
-     * @param array $get    $_GET data
-     * @param array $post   $_POST data
-     *
-     * @return ServerRequestInterface Server request
-     */
-    protected function createRequest(array $server, array $get = [], array $post = []): ServerRequestInterface
-    {
-        $psr17Factory = new Psr17Factory();
-        $creator      = new ServerRequestCreator(
-            $psr17Factory, // ServerRequestFactory
-            $psr17Factory, // UriFactory
-            $psr17Factory, // UploadedFileFactory
-            $psr17Factory  // StreamFactory
-        );
 
-        return $creator->fromArrays(
-            $server, // $_SERVER
-            [], // Headers
-            [], // Cookies
-            $get, // GET
-            $post, // POST
-            [], // FILES
-            null // Body
-        );
-    }
-
-    /**
-     * Create an Antibot instance
-     *
-     * @param string|null $session Session-persistent unique ID
-     *
-     * @return Antibot Antibot instance
-     */
-    protected function createAntibot(string &$session = null): Antibot
-    {
-        if ($session === null) {
-            $session = md5(rand());
-        }
-
-        return new Antibot([], $session);
-    }
 }

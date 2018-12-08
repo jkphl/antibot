@@ -36,6 +36,8 @@
 
 namespace Jkphl\Antibot\Domain\Model;
 
+use Jkphl\Antibot\Domain\Exceptions\ErrorException;
+
 /**
  * Validation Result
  *
@@ -74,6 +76,12 @@ class ValidationResult
      * @var string[]
      */
     protected $blacklists = [];
+    /**
+     * Error messages
+     *
+     * @var ErrorException[]
+     */
+    protected $errors = [];
 
     /**
      * Return whether the request was valid in general
@@ -155,5 +163,35 @@ class ValidationResult
     public function getBlacklists(): array
     {
         return $this->blacklists;
+    }
+
+    /**
+     * Add an error
+     *
+     * @param ErrorException $error
+     */
+    public function addError(ErrorException $error): void
+    {
+        $this->errors[] = $error;
+    }
+
+    /**
+     * Return all errors
+     *
+     * @return ErrorException[] Errors
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    /**
+     * Return whether this result has errors
+     *
+     * @return bool Has errors
+     */
+    public function hasErrors(): bool
+    {
+        return count($this->errors) > 0;
     }
 }

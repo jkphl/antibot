@@ -39,6 +39,7 @@ namespace Jkphl\Antibot\Domain;
 use Jkphl\Antibot\Domain\Contract\ActorInterface;
 use Jkphl\Antibot\Domain\Contract\ValidatorInterface;
 use Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException;
+use Jkphl\Antibot\Domain\Exceptions\ErrorException;
 use Jkphl\Antibot\Domain\Exceptions\RuntimeException;
 use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
 use Jkphl\Antibot\Domain\Model\ValidationResult;
@@ -202,6 +203,11 @@ class Antibot
             } catch (WhitelistValidationException $e) {
                 $result->addWhitelist($e->getMessage());
                 break;
+
+                // If an error occured
+            } catch (ErrorException $e) {
+                $result->addError($e);
+                $result->setValid(false);
             }
         }
 
@@ -212,10 +218,11 @@ class Antibot
      * Return the Antibot armor
      *
      * @param ServerRequestInterface $request Request
+     * @param bool $raw                       Return input elements
      *
-     * @return string Antibot armor
+     * @return string|array Antibot armor
      */
-    public function armor(ServerRequestInterface $request): string
+    public function armor(ServerRequestInterface $request, bool $raw = false)
     {
         $this->initialize($request);
         $armor = [];
@@ -225,11 +232,11 @@ class Antibot
         foreach ($this->validators as $validator) {
             $validatorArmor = $validator->armor($request, $this);
             if (!empty($validatorArmor)) {
-                $armor[] = $validatorArmor;
+                $armor = array_merge($armor, $validatorArmor);
             }
         }
 
-        return implode('', $armor);
+        return $raw ? $armor : implode('', array_map('strval', $armor));
     }
 
     /**

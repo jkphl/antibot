@@ -37,8 +37,11 @@
 namespace Jkphl\Antibot\Ports\Validators;
 
 use Jkphl\Antibot\Domain\Antibot;
+use Jkphl\Antibot\Domain\Exceptions\InvalidRequestMethodOrderException;
+use Jkphl\Antibot\Infrastructure\Exceptions\HmacValidationException;
 use Jkphl\Antibot\Infrastructure\Factory\HmacFactory;
 use Jkphl\Antibot\Infrastructure\Model\AbstractValidator;
+use Jkphl\Antibot\Infrastructure\Model\InputElement;
 use Jkphl\Antibot\Ports\Exceptions\InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -98,6 +101,12 @@ class HmacValidator extends AbstractValidator
      * @var float
      */
     const MAXIMUM_SUBMISSION = 3600;
+    /**
+     * Block access
+     *
+     * @var string
+     */
+    const BLOCK = 'BLOCK';
 
     /**
      * Set the request method vector
@@ -180,7 +189,7 @@ class HmacValidator extends AbstractValidator
                 return false;
             }
 
-
+            return $this->validateHmac($data['hmac'], $request, $antibot);
         }
 
         return true;
@@ -192,42 +201,148 @@ class HmacValidator extends AbstractValidator
      * @param ServerRequestInterface $request Request
      * @param Antibot $antibot                Antibot instance
      *
-     * @return string Form HTML
+     * @return InputElement[] HMTL input elements
      */
-    public function armor(ServerRequestInterface $request, Antibot $antibot): string
+    public function armor(ServerRequestInterface $request, Antibot $antibot): array
     {
         $now   = null;
         $hmac  = $this->calculateHmac($request, $antibot, $now);
-        $armor = '<input type="hidden" name="'.htmlspecialchars($antibot->getParameterPrefix()).'[hmac]" value="'.htmlspecialchars($hmac).'">';
+        $armor = [
+            new InputElement([
+                'type'  => 'hidden',
+                'name'  => $antibot->getParameterPrefix().'[hmac]',
+                'value' => $hmac
+            ])
+        ];
+        // Add the timestamp field
+        if ($now !== null) {
+            $armor[] = new InputElement([
+                'type'  => 'hidden',
+                'name'  => $antibot->getParameterPrefix().'[ts]',
+                'value' => intval($now)
+            ]);
+        }
 
         return $armor;
     }
 
-    public function _decryptHmac($hmac)
+    /**
+     * Decrypt and validate an HMAC
+     *
+     * @param string $hmac                    HMAC
+     * @param ServerRequestInterface $request Request
+     * @param Antibot $antibot                Antibot instance
+     *
+     * @return bool HMAC is valid
+     * @throws HmacValidationException If the request method order is invalid
+     * @throws HmacValidationException If the request timing is invalid
+     */
+    protected function validateHmac(string $hmac, ServerRequestInterface $request, Antibot $antibot): bool
     {
         $decrypted      = false;
         $previousMethod = null;
-        $hmacParams     = array($this->_token);
-        // If session token checks are enabled
-        if ($this->_sessionTokenEnabled()) {
-            $hmacParams[] = session_id();
-        }
+        $hmacParams     = [$antibot->getUnique()];
+
         // Short-circuit blocked HMAC
         $hmacBlock   = $hmacParams;
         $hmacBlock[] = self::BLOCK;
-        if (\TYPO3\CMS\Core\Utility\GeneralUtility::hmac(serialize($hmacBlock)) == $hmac) {
+        if (HmacFactory::createFromString(serialize($hmacBlock), $antibot->getUnique()) === $hmac) {
             return false;
         }
-        // If submission time checks are enabled
-        if ($this->_submissionMethodOrderEnabled()) {
-            list($previousMethod, $currentMethod) = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode('-',
-                $this->_settings['order']['method'], true);
-            // If the current request method doesn't match
-            if ($currentMethod != strtoupper($_SERVER['REQUEST_METHOD'])) {
-                throw new Exception\InvalidRequestMethodOrderException(strtoupper($_SERVER['REQUEST_METHOD']));
+
+        // If the request method vector should be used
+        if (!empty($this->methodVector)) {
+            $serverParams  = $request->getServerParams();
+            $requestMethod = empty($serverParams['REQUEST_METHOD']) ? 'EMPTY' : $serverParams['REQUEST_METHOD'];
+            if ($requestMethod !== $this->methodVector[1]) {
+                throw new HmacValidationException(
+                    HmacValidationException::INVALID_REQUEST_METHOD_ORDER_STR,
+                    HmacValidationException::INVALID_REQUEST_METHOD_ORDER
+                );
             }
-            $hmacParams[] = $previousMethod;
+
+            $hmacParams[] = $this->methodVector[0];
         }
+
+        // If submission time checks are enabled
+        if (!empty($this->submissionTimes)) {
+            list($first, $min, $max) = $this->submissionTimes;
+            $now       = time();
+            $initial   = $now - $first;
+            $delay     = null;
+            $data      = $antibot->getData();
+            $timestamp = empty($data['ts']) ? null : $data['ts'];
+
+            // If a timestamp has been submitted
+            if ($timestamp
+                && (($timestamp + $min) <= $now)
+                && (($timestamp + $max) >= $now)
+                && (
+                    $this->probeTimedHmac($hmac, $antibot, $hmacParams, $timestamp, $timestamp > $initial)
+                    || (($timestamp <= $initial) ?
+                        $this->probeTimedHmac($hmac, $antibot, $hmacParams, $timestamp, true) : false
+                    )
+                )
+            ) {
+//                $delay     = $now - $timestamp;
+                return true;
+            } else {
+                // Run through the valid seconds range
+                for ($time = $now - $min; $time >= $now - $max; --$time) {
+                    // Probe the current timestamp
+                    if ($this->probeTimedHmac($hmac, $antibot, $hmacParams, $time, $time > $initial)
+                        || (($time <= $initial)
+                            && $this->probeTimedHMAC($hmac, $antibot, $hmacParams, $time, true)
+                        )
+                    ) {
+//                        $delay     = $now - $time;
+                        return true;
+                    }
+                }
+            }
+
+            throw new HmacValidationException(
+                HmacValidationException::INVALID_REQUEST_TIMING_STR,
+                HmacValidationException::INVALID_REQUEST_TIMING
+            );
+        }
+
+        $currentHMAC = HmacFactory::createFromString(serialize($hmacParams), $antibot->getUnique());
+
+        return $hmac === $currentHMAC;
+    }
+
+    /**
+     * Probe a timed HMAC
+     *
+     * @param string $hmac      HMAC
+     * @param Antibot $antibot  Antibot instance
+     * @param array $hmacParams HMAC params
+     * @param int $timestamp    Timestamp
+     * @param bool $followUp    Is a follow-up request
+     *
+     * @return bool HMAC is valid
+     */
+    protected function probeTimedHmac(
+        string $hmac,
+        Antibot $antibot,
+        array $hmacParams,
+        int $timestamp,
+        bool $followUp = false
+    ): bool {
+        if ($followUp) {
+            $hmacParams[] = true;
+        }
+        $hmacParams[] = $timestamp;
+        $currentHMAC  = HmacFactory::createFromString(serialize($hmacParams), $antibot->getUnique());
+
+        echo 'Current HMAC: '.$currentHMAC;
+
+        return $currentHMAC == $hmac;
+    }
+
+    public function _decryptHmac($hmac)
+    {
         // If submission time checks are enabled
         if ($this->_submissionTimeEnabled()) {
             $minimum  = intval($this->_settings['time']['minimum']);
