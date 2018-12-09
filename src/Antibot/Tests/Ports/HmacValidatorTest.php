@@ -175,25 +175,4 @@ class HmacValidatorTest extends AbstractTestBase
         $this->assertEquals(40, strlen($armor[0]->getAttributes()['value']));
         $this->assertTrue(is_int($armor[1]->getAttributes()['value']));
     }
-
-    /**
-     * Translate armor input elements to GET / POST parameters
-     *
-     * @param array $armor Armor input elements
-     *
-     * @return array GET / POST Parameters
-     */
-    protected function getArmorParams(array $armor): array
-    {
-        // Prepare the second call
-        $params = [];
-        /** @var InputElement $input */
-        foreach ($armor as $input) {
-            $inputAttrs                  = $input->getAttributes();
-            $params[$inputAttrs['name']] = $inputAttrs['value'];
-        }
-        parse_str(http_build_query($params), $params);
-
-        return $params;
-    }
 }

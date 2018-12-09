@@ -75,6 +75,12 @@ class ParameterBlacklistValidator extends AbstractLookupValidator
      * @var string
      */
     const POST = 'POST';
+    /**
+     * Validation order position
+     *
+     * @var int
+     */
+    const POSITION = 20;
 
     /**
      * Constructor

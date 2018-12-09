@@ -5,7 +5,7 @@
  *
  * @category   Jkphl
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Infrastructure\Model
+ * @subpackage Jkphl\Antibot\Infrastructure\Exceptions
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
@@ -34,77 +34,28 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Infrastructure\Model;
+namespace Jkphl\Antibot\Infrastructure\Exceptions;
+
+use Jkphl\Antibot\Domain\Exceptions\ErrorException;
 
 /**
- * Input Element
+ * Honeypot Validation Exception
  *
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Infrastructure\Model
+ * @subpackage Jkphl\Antibot\Infrastructure\Exceptions
  */
-class InputElement
+class HoneypotValidationException extends ErrorException
 {
     /**
-     * Element Attributes
+     * Triggered honeypot
      *
-     * @var string[]
+     * @var string
      */
-    protected $attributes;
+    const TRIGGERED_HONEYPOT_STR = 'Triggered honeypot "%s"';
     /**
-     * Renderer
+     * Triggered honeypot
      *
-     * @var \Closure
+     * @var int
      */
-    protected $renderer;
-
-    /**
-     * Constructor
-     *
-     * @param string[] $attributes    Element Attributes
-     * @param \Closure|null $renderer Optional: Renderer
-     */
-    public function __construct(array $attributes = [], \Closure $renderer = null)
-    {
-        $this->attributes = $attributes;
-        $this->renderer   = $renderer;
-    }
-
-    /**
-     * Return the Element attributes
-     *
-     * @return string[] Element attributes
-     */
-    public function getAttributes(): array
-    {
-        return $this->attributes;
-    }
-
-    /**
-     * Serialize the Input Element
-     *
-     * @return string HTML
-     */
-    public function __toString(): string
-    {
-        $html = '<input';
-        foreach ($this->attributes as $name => $value) {
-            $html .= ' '.htmlspecialchars($name).'="'.htmlspecialchars($value).'"';
-        }
-        $html .= '/>';
-
-        try {
-            if ($this->renderer !== null) {
-                return strval(call_user_func($this->renderer, $this, $html));
-            }
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-
-        return $html;
-    }
-
-    public function __sleep()
-    {
-        return ['attributes'];
-    }
+    const TRIGGERED_HONEYPOT = 1544362218;
 }

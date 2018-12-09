@@ -36,6 +36,7 @@
 
 namespace Jkphl\Antibot\Tests;
 
+use Jkphl\Antibot\Infrastructure\Model\InputElement;
 use Jkphl\Antibot\Ports\Antibot;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -103,5 +104,26 @@ class AbstractTestBase extends TestCase
         $antibot->setLogger($log);
 
         return $antibot;
+    }
+
+    /**
+     * Translate armor input elements to GET / POST parameters
+     *
+     * @param array $armor Armor input elements
+     *
+     * @return array GET / POST Parameters
+     */
+    protected function getArmorParams(array $armor): array
+    {
+        // Prepare the second call
+        $params = [];
+        /** @var InputElement $input */
+        foreach ($armor as $input) {
+            $inputAttrs                  = $input->getAttributes();
+            $params[$inputAttrs['name']] = $inputAttrs['value'];
+        }
+        parse_str(http_build_query($params), $params);
+
+        return $params;
     }
 }
