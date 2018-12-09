@@ -73,7 +73,7 @@ class AntibotTest extends AbstractTestBase
      */
     public function testValidation()
     {
-        $antibot = new Antibot([], md5(rand()));
+        $antibot = $this->createAntibot();
         $this->assertInstanceOf(Antibot::class, $antibot);
 
         // Add a whitelist validator

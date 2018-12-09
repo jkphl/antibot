@@ -36,7 +36,6 @@
 
 namespace Jkphl\Antibot\Domain;
 
-use Jkphl\Antibot\Domain\Contract\ActorInterface;
 use Jkphl\Antibot\Domain\Contract\ValidatorInterface;
 use Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException;
 use Jkphl\Antibot\Domain\Exceptions\ErrorException;
@@ -53,12 +52,6 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class Antibot
 {
-    /**
-     * Antibot configuration
-     *
-     * @var array
-     */
-    protected $config;
     /**
      * Session persistent, unique token
      *
@@ -96,12 +89,6 @@ class Antibot
      */
     protected $validators = [];
     /**
-     * Actors
-     *
-     * @var ActorInterface[]
-     */
-    protected $actors = [];
-    /**
      * Immutable instance
      *
      * @var bool
@@ -117,13 +104,11 @@ class Antibot
     /**
      * Antibot constructor
      *
-     * @param array $config  Configuration
      * @param string $unique Session-persistent, unique key
      * @param string $prefix Prefix
      */
-    public function __construct($config, string $unique, string $prefix = self::DEFAULT_PREFIX)
+    public function __construct(string $unique, string $prefix = self::DEFAULT_PREFIX)
     {
-        $this->config = $config;
         $this->unique = $unique;
         $this->prefix = $prefix;
     }
@@ -279,7 +264,7 @@ class Antibot
      */
     protected function calculateSignature(): string
     {
-        $params = [$this->prefix, $this->config, $this->validators, $this->actors];
+        $params = [$this->prefix, $this->validators];
 
         return sha1($this->unique.serialize($params));
     }

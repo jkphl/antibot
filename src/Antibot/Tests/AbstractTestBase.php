@@ -93,6 +93,6 @@ class AbstractTestBase extends TestCase
             $session = md5(rand());
         }
 
-        return new Antibot([], $session);
+        return new Antibot($session);
     }
 }

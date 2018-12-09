@@ -36,7 +36,6 @@
 
 namespace Jkphl\Antibot\Ports;
 
-use Jkphl\Antibot\Ports\Contract\ActorInterface;
 use Jkphl\Antibot\Ports\Contract\ValidatorInterface;
 use Jkphl\Antibot\Ports\Exceptions\InvalidArgumentException;
 
@@ -57,17 +56,6 @@ class Antibot extends \Jkphl\Antibot\Domain\Antibot
     {
         $this->checkImmutable();
         $this->validators[] = $validator;
-    }
-
-    /**
-     * Add an actor
-     *
-     * @param ActorInterface $actor Actor
-     */
-    public function addActor(ActorInterface $actor): void
-    {
-        $this->checkImmutable();
-        $this->actors[] = $actor;
     }
 
     /**
