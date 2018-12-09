@@ -37,7 +37,6 @@
 namespace Jkphl\Antibot\Tests\Ports;
 
 use Jkphl\Antibot\Infrastructure\Exceptions\HmacValidationException;
-use Jkphl\Antibot\Infrastructure\Model\InputElement;
 use Jkphl\Antibot\Ports\Validators\HmacValidator;
 use Jkphl\Antibot\Tests\AbstractTestBase;
 
@@ -80,8 +79,7 @@ class HmacValidatorTest extends AbstractTestBase
      */
     public function testRequestMethodOrderValidation(): void
     {
-        $session       = md5(rand());
-        $antibot       = $this->createAntibot($session);
+        $antibot       = $this->createAntibot();
         $hmacValidator = new HmacValidator();
         $hmacValidator->setMethodVector(HmacValidator::METHOD_GET, HmacValidator::METHOD_POST);
         $antibot->addValidator($hmacValidator);
@@ -95,7 +93,7 @@ class HmacValidatorTest extends AbstractTestBase
         $this->assertTrue($validationResult->isValid());
 
         // Third request using the wrong request method
-        $request3         = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
+        $request3         = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'], $post);
         $validationResult = $antibot->validate($request3);
         $this->assertFalse($validationResult->isValid());
         $this->assertTrue($validationResult->hasErrors());

@@ -67,6 +67,18 @@ class HmacValidator extends AbstractValidator
      */
     protected $submissionTimes = null;
     /**
+     * Previous request method extracted from valid HMAC
+     *
+     * @var string|null
+     */
+    protected $previousMethod = null;
+    /**
+     * Previous validation result
+     *
+     * @var null|bool
+     */
+    protected $validated = null;
+    /**
      * Validation order position
      *
      * @var int
@@ -190,7 +202,20 @@ class HmacValidator extends AbstractValidator
             throw new SkippedValidationException(static::class);
         }
 
-        return empty($data['hmac']) ? false : $this->validateHmac($data['hmac'], $request, $antibot);
+        // If no HMAC has been submitted: Fail
+        if (empty($data['hmac'])) {
+            return false;
+        }
+
+        // Validate the submitted HMAC
+        $success = $this->validateHmac($data['hmac'], $request, $antibot);
+
+        // If the request method vector was valid: Store the initial request method for further use
+        if (!empty($this->methodVector)) {
+            $this->previousMethod = $this->methodVector[0];
+        }
+
+        return $success;
     }
 
     /**
@@ -203,6 +228,13 @@ class HmacValidator extends AbstractValidator
      */
     public function armor(ServerRequestInterface $request, Antibot $antibot): array
     {
+        // Ensure validation has run before
+        try {
+            $this->validate($request, $antibot);
+        } catch (\Exception $e) {
+            // Continue
+        }
+
         $now   = null;
         $hmac  = $this->calculateHmac($request, $antibot, $now);
         $armor = [
@@ -236,7 +268,6 @@ class HmacValidator extends AbstractValidator
      */
     protected function validateHmac(string $hmac, ServerRequestInterface $request, Antibot $antibot): bool
     {
-//        $previousMethod = null;
         $hmacParams = [$antibot->getUnique()];
 
         // Short-circuit blocked HMAC
@@ -434,8 +465,9 @@ class HmacValidator extends AbstractValidator
         // If the request method vector should be used
         if (!empty($this->methodVector)) {
             $serverParams  = $request->getServerParams();
-            $requestMethod = empty($serverParams['REQUEST_METHOD']) ? '' : $serverParams['REQUEST_METHOD'];
-            $hmacParams[]  = $this->validateRequestMethod($requestMethod);
+            $requestMethod = $this->previousMethod ?: (empty($serverParams['REQUEST_METHOD']) ? '' : $serverParams['REQUEST_METHOD']);
+//            $requestMethod = empty($serverParams['REQUEST_METHOD']) ? '' : $serverParams['REQUEST_METHOD'];
+            $hmacParams[] = $this->validateRequestMethod($requestMethod);
         }
     }
 

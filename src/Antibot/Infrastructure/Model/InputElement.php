@@ -103,6 +103,13 @@ class InputElement
         return $html;
     }
 
+    /**
+     * Return all serializable properties
+     *
+     * The renderer closure must be omitted in order to make the input element serializable
+     *
+     * @return string[] Serializable properties
+     */
     public function __sleep()
     {
         return ['attributes'];

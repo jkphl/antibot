@@ -183,7 +183,7 @@ class HoneypotValidator extends AbstractValidator
      *
      * The renderer closure must be omitted in order to make the validator serializable
      *
-     * @return array Serializable properties
+     * @return string[] Serializable properties
      */
     public function __sleep()
     {

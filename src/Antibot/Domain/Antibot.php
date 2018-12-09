@@ -267,10 +267,12 @@ class Antibot implements LoggerAwareInterface
      */
     protected function initialize(ServerRequestInterface $request): void
     {
-        usort($this->validators, [$this, 'sortValidators']);
-        $this->immutable       = true;
-        $this->signature       = $this->calculateSignature();
-        $this->parameterPrefix = $this->prefix.'_'.$this->signature;
+        if (!$this->immutable) {
+            $this->immutable = true;
+            usort($this->validators, [$this, 'sortValidators']);
+            $this->signature       = $this->calculateSignature();
+            $this->parameterPrefix = $this->prefix.'_'.$this->signature;
+        }
         $this->extractData($request);
     }
 
