@@ -59,7 +59,15 @@ class HmacValidatorTest extends AbstractTestBase
         $antibot       = $this->createAntibot($session);
         $hmacValidator = new HmacValidator();
         $antibot->addValidator($hmacValidator);
+
+        // Run a first validation: Should be skipped
         $request1         = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
+        $validationResult = $antibot->validate($request1);
+        $this->assertFalse($validationResult->isValid());
+        $this->assertFalse($validationResult->isFailed());
+        $this->assertTrue($validationResult->isSkipped());
+
+        // Arm & run a second request: Should succeed
         $armor            = $antibot->armor($request1, true);
         $post             = $this->getArmorParams($armor);
         $request2         = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);

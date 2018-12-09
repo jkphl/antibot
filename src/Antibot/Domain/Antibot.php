@@ -40,6 +40,7 @@ use Jkphl\Antibot\Domain\Contract\ValidatorInterface;
 use Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException;
 use Jkphl\Antibot\Domain\Exceptions\ErrorException;
 use Jkphl\Antibot\Domain\Exceptions\RuntimeException;
+use Jkphl\Antibot\Domain\Exceptions\SkippedValidationException;
 use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
 use Jkphl\Antibot\Domain\Model\ValidationResult;
 use Psr\Http\Message\ServerRequestInterface;
@@ -114,32 +115,6 @@ class Antibot
     }
 
     /**
-     * Return the prefix
-     *
-     * @return string Prefix
-     */
-    public function getPrefix(): string
-    {
-        return $this->prefix;
-    }
-
-    /**
-     * Return the parameter prefix
-     *
-     * @return string Parameter prefix
-     * @throws RuntimeException If Antibot needs to be initialized
-     */
-    public function getParameterPrefix(): string
-    {
-        // If Antibot needs to be initialized
-        if (!$this->immutable) {
-            throw new RuntimeException(RuntimeException::ANTIBOT_INITIALIZE_STR, RuntimeException::ANTIBOT_INITIALIZE);
-        }
-
-        return $this->parameterPrefix;
-    }
-
-    /**
      * Return the session persistent, unique token
      *
      * @return string Session persistent, unique token
@@ -150,13 +125,38 @@ class Antibot
     }
 
     /**
+     * Return the prefix
+     *
+     * @return string Prefix
+     */
+    public function getPrefix(): string
+    {
+        return $this->prefix;
+    }
+
+    /**
      * Return the submitted Antibot data
      *
      * @return string[] Antibot data
      */
     public function getData(): ?array
     {
+        $this->checkInitialized();
+
         return $this->data;
+    }
+
+    /**
+     * Return the parameter prefix
+     *
+     * @return string Parameter prefix
+     * @throws RuntimeException If Antibot needs to be initialized
+     */
+    public function getParameterPrefix(): string
+    {
+        $this->checkInitialized();
+
+        return $this->parameterPrefix;
     }
 
     /**
@@ -178,6 +178,10 @@ class Antibot
                 if (!$validator->validate($request, $this)) {
                     $result->setValid(false);
                 }
+
+                // If the validator skipped validation
+            } catch (SkippedValidationException $e) {
+                $result->addSkip($e->getMessage());
 
                 // If the request failed a blacklist test
             } catch (BlacklistValidationException $e) {
@@ -294,6 +298,22 @@ class Antibot
             throw new RuntimeException(
                 RuntimeException::ANTIBOT_IMMUTABLE_STR,
                 RuntimeException::ANTIBOT_IMMUTABLE
+            );
+        }
+    }
+
+    /**
+     * Check whether this Antibot instance is already initialized
+     *
+     * @throws RuntimeException If the Antibot instance still needs to be initialized
+     */
+    protected function checkInitialized(): void
+    {
+        // If the Antibot instance still needs to be initialized
+        if (!$this->immutable) {
+            throw new RuntimeException(
+                RuntimeException::ANTIBOT_INITIALIZE_STR,
+                RuntimeException::ANTIBOT_INITIALIZE
             );
         }
     }

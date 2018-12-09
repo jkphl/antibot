@@ -37,12 +37,12 @@
 namespace Jkphl\Antibot\Domain\Exceptions;
 
 /**
- * Blacklist Validation Exception
+ * Skipped Validation Exception
  *
  * @package    Jkphl\Antibot
  * @subpackage Jkphl\Antibot\Domain\Exceptions
  */
-class BlacklistValidationException extends ValidationException
+class SkippedValidationException extends ValidationException
 {
 
 }

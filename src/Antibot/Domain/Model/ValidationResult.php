@@ -82,15 +82,37 @@ class ValidationResult
      * @var ErrorException[]
      */
     protected $errors = [];
+    /**
+     * Skipping validators
+     *
+     * @var string[]
+     */
+    protected $skips = [];
+    /**
+     * Skipped
+     *
+     * @var bool
+     */
+    protected $skipped = false;
 
     /**
-     * Return whether the request was valid in general
+     * Return whether the request was valid
      *
      * @return bool Valid
      */
     public function isValid(): bool
     {
-        return $this->valid;
+        return $this->valid && !$this->skipped;
+    }
+
+    /**
+     * Return whether the request was invalid
+     *
+     * @return bool Valid
+     */
+    public function isFailed(): bool
+    {
+        return !$this->valid && !$this->skipped;
     }
 
     /**
@@ -193,5 +215,36 @@ class ValidationResult
     public function hasErrors(): bool
     {
         return count($this->errors) > 0;
+    }
+
+    /**
+     * Add a skipping validator
+     *
+     * @param string $skip Skipping validator
+     */
+    public function addSkip(string $skip): void
+    {
+        $this->skips[] = $skip;
+        $this->skipped = true;
+    }
+
+    /**
+     * Return whether this result has skipping validators
+     *
+     * @return bool Has skipping validators
+     */
+    public function hasSkips(): bool
+    {
+        return count($this->skips) > 0;
+    }
+
+    /**
+     * Return whether a validator skipped this validation
+     *
+     * @return bool Validation skipped
+     */
+    public function isSkipped(): bool
+    {
+        return $this->skipped;
     }
 }

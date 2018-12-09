@@ -38,6 +38,7 @@ namespace Jkphl\Antibot\Ports\Validators;
 
 use Jkphl\Antibot\Domain\Antibot;
 use Jkphl\Antibot\Domain\Exceptions\InvalidRequestMethodOrderException;
+use Jkphl\Antibot\Domain\Exceptions\SkippedValidationException;
 use Jkphl\Antibot\Infrastructure\Exceptions\HmacValidationException;
 use Jkphl\Antibot\Infrastructure\Factory\HmacFactory;
 use Jkphl\Antibot\Infrastructure\Model\AbstractValidator;
@@ -177,22 +178,19 @@ class HmacValidator extends AbstractValidator
      * @param Antibot $antibot                Antibot instance
      *
      * @return bool
+     * @throws HmacValidationException
+     * @throws SkippedValidationException If no Antibot data has been submitted
      */
     public function validate(ServerRequestInterface $request, Antibot $antibot): bool
     {
         $data = $antibot->getData();
 
-        // If Antibot data has been submitted
-        if ($data !== null) {
-            // If no HMAC was submitted
-            if (empty($data['hmac'])) {
-                return false;
-            }
-
-            return $this->validateHmac($data['hmac'], $request, $antibot);
+        // If no Antibot data has been submitted
+        if ($data === null) {
+            throw new SkippedValidationException(static::class);
         }
 
-        return true;
+        return empty($data['hmac']) ? false : $this->validateHmac($data['hmac'], $request, $antibot);
     }
 
     /**

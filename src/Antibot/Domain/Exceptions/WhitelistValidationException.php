@@ -36,15 +36,13 @@
 
 namespace Jkphl\Antibot\Domain\Exceptions;
 
-use Jkphl\Antibot\Domain\Contract\AntibotException;
-
 /**
  * Whitelist Validation Exception
  *
  * @package    Jkphl\Antibot
  * @subpackage Jkphl\Antibot\Domain\Exceptions
  */
-class WhitelistValidationException extends \LogicException implements AntibotException
+class WhitelistValidationException extends ValidationException
 {
 
 }
