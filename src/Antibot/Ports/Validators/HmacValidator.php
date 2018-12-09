@@ -313,7 +313,7 @@ class HmacValidator extends AbstractValidator
                 && (($timestamp + $max) >= $now)
                 && $this->probeTimedHmacAsInitialAndFollowup($hmac, $antibot, $hmacParams, $timestamp, $initial)
             ) {
-                echo "Validated using submitted timestamp $timestamp\n";
+                $antibot->getLogger()->debug("[HMAC] Validated using submitted timestamp $timestamp");
 
                 return true;
             } else {
@@ -353,23 +353,15 @@ class HmacValidator extends AbstractValidator
         int $timestamp,
         int $initial
     ): bool {
-        echo "Probing $timestamp: ";
-
         // If the HMAC validates with auto-guessed mode: Succeed
         if ($this->probeTimedHmac($hmac, $antibot, $hmacParams, $timestamp, $timestamp > $initial)) {
-            echo PHP_EOL;
-
             return true;
         }
 
         // Also test as late follow-up request
         if (($timestamp <= $initial) && $this->probeTimedHMAC($hmac, $antibot, $hmacParams, $timestamp, true)) {
-            echo PHP_EOL;
-
             return true;
         }
-
-        echo PHP_EOL;
 
         return false;
     }
@@ -398,7 +390,7 @@ class HmacValidator extends AbstractValidator
         $hmacParams[] = $timestamp;
         $currentHMAC  = HmacFactory::createFromString(serialize($hmacParams), $antibot->getUnique());
 
-        echo $followUp ? " / $currentHMAC" : "$currentHMAC";
+        $antibot->getLogger()->debug("[HMAC] Probing $timestamp (".($followUp ? 'FLLW' : 'INIT')."): $currentHMAC");
 
         return $currentHMAC == $hmac;
     }
@@ -440,9 +432,7 @@ class HmacValidator extends AbstractValidator
 
         $hmac = HmacFactory::createFromString(serialize($hmacParams), $antibot->getUnique());
 
-        echo 'Creating HMAC for: ';
-        print_r($hmacParams);
-        echo 'HMAC: '.$hmac.PHP_EOL.PHP_EOL;
+        $antibot->getLogger()->debug("[HMAC] Created HMAC $hmac", $hmacParams);
 
         return $hmac;
     }

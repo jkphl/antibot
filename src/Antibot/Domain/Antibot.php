@@ -44,6 +44,9 @@ use Jkphl\Antibot\Domain\Exceptions\SkippedValidationException;
 use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
 use Jkphl\Antibot\Domain\Model\ValidationResult;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Antibot core
@@ -51,7 +54,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @package    Jkphl\Antibot
  * @subpackage Jkphl\Antibot\Domain
  */
-class Antibot
+class Antibot implements LoggerAwareInterface
 {
     /**
      * Session persistent, unique token
@@ -96,6 +99,12 @@ class Antibot
      */
     protected $immutable = false;
     /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
+    protected $logger = null;
+    /**
      * Default antibot prefix
      *
      * @var string
@@ -112,6 +121,7 @@ class Antibot
     {
         $this->unique = $unique;
         $this->prefix = $prefix;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -168,6 +178,7 @@ class Antibot
      */
     public function validate(ServerRequestInterface $request): ValidationResult
     {
+        $this->logger->info('Start validation');
         $this->initialize($request);
         $result = new ValidationResult();
 
@@ -200,6 +211,7 @@ class Antibot
             }
         }
 
+        $this->logger->info('Finished validation');
         return $result;
     }
 
@@ -316,5 +328,27 @@ class Antibot
                 RuntimeException::ANTIBOT_INITIALIZE
             );
         }
+    }
+
+    /**
+     * Return the logger
+     *
+     * @return LoggerInterface Logger
+     */
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
+    }
+
+    /**
+     * Sets a logger instance on the object
+     *
+     * @param LoggerInterface $logger Logger
+     *
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 }

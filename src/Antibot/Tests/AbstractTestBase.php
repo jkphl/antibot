@@ -37,6 +37,8 @@
 namespace Jkphl\Antibot\Tests;
 
 use Jkphl\Antibot\Ports\Antibot;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use PHPUnit\Framework\TestCase;
@@ -86,6 +88,7 @@ class AbstractTestBase extends TestCase
      * @param string|null $session Session-persistent unique ID
      *
      * @return Antibot Antibot instance
+     * @throws \Exception
      */
     protected function createAntibot(string &$session = null): Antibot
     {
@@ -93,6 +96,12 @@ class AbstractTestBase extends TestCase
             $session = md5(rand());
         }
 
-        return new Antibot($session);
+        $antibot = new Antibot($session, Antibot::DEFAULT_PREFIX);
+
+        $log = new Logger('ANTIBOT');
+        $log->pushHandler(new StreamHandler('php://stdout'));
+        $antibot->setLogger($log);
+
+        return $antibot;
     }
 }
