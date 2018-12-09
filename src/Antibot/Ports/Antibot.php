@@ -38,6 +38,7 @@ namespace Jkphl\Antibot\Ports;
 
 use Jkphl\Antibot\Ports\Contract\ValidatorInterface;
 use Jkphl\Antibot\Ports\Exceptions\InvalidArgumentException;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Antibot Facade
@@ -73,5 +74,17 @@ class Antibot extends \Jkphl\Antibot\Domain\Antibot
             );
         }
         $this->prefix = $prefix;
+    }
+
+    /**
+     * Return the Antibot armor
+     *
+     * @param ServerRequestInterface $request Request
+     *
+     * @return string Antibot armor (HTML)
+     */
+    public function armor(ServerRequestInterface $request)
+    {
+        return implode('', array_map('strval', $this->armorInputs($request)));
     }
 }

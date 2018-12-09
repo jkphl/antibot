@@ -50,29 +50,42 @@ class HmacFactory
      * @param string $input  Input string to create HMAC from
      * @param string $secret Secret to prevent hmac being used in a different context
      *
-     * @return string resulting (hexadecimal) HMAC currently with a length of 40 (HMAC-SHA-1)
+     * @return string Resulting (hexadecimal) HMAC currently with a length of 40 (HMAC-SHA-1)
      */
     public static function createFromString(string $input, $secret = ''): string
     {
         $hashAlgorithm = 'sha1';
-        $hashBlocksize = 64;
         if (extension_loaded('hash')
             && function_exists('hash_hmac')
             && function_exists('hash_algos')
             && in_array($hashAlgorithm, hash_algos())) {
-            $hmac = hash_hmac($hashAlgorithm, $input, $secret);
-        } else {
-            $opad = str_repeat(chr(92), $hashBlocksize);
-            $ipad = str_repeat(chr(54), $hashBlocksize);
-            if (strlen($secret) > $hashBlocksize) {
-                $key = str_pad(pack('H*', call_user_func($hashAlgorithm, $secret)), $hashBlocksize, chr(0));
-            } else {
-                $key = str_pad($secret, $hashBlocksize, chr(0));
-            }
-            $hmac = call_user_func($hashAlgorithm,
-                ($key ^ $opad).pack('H*', call_user_func($hashAlgorithm, (($key ^ $ipad).$input))));
+            return hash_hmac($hashAlgorithm, $input, $secret);
         }
 
-        return $hmac;
+        return static::createFromStringInternal($input, $secret, $hashAlgorithm);
+    }
+
+    /**
+     * Create the HMAC with internal tools
+     *
+     * @param string $input         Input string to create HMAC from
+     * @param string $secret        Secret to prevent hmac being used in a different context
+     * @param string $hashAlgorithm Hash algorithm
+     *
+     * @return string Resulting (hexadecimal) HMAC currently with a length of 40 (HMAC-SHA-1)
+     */
+    protected static function createFromStringInternal(string $input, string $secret, string $hashAlgorithm): string
+    {
+        $hashBlocksize = 64;
+        $opad          = str_repeat(chr(92), $hashBlocksize);
+        $ipad          = str_repeat(chr(54), $hashBlocksize);
+        if (strlen($secret) > $hashBlocksize) {
+            $key = str_pad(pack('H*', call_user_func($hashAlgorithm, $secret)), $hashBlocksize, chr(0));
+        } else {
+            $key = str_pad($secret, $hashBlocksize, chr(0));
+        }
+
+        return call_user_func($hashAlgorithm,
+            ($key ^ $opad).pack('H*', call_user_func($hashAlgorithm, (($key ^ $ipad).$input))));
     }
 }

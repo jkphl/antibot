@@ -68,7 +68,7 @@ class HmacValidatorTest extends AbstractTestBase
         $this->assertTrue($validationResult->isSkipped());
 
         // Arm & run a second request: Should succeed
-        $armor            = $antibot->armor($request1, true);
+        $armor            = $antibot->armorInputs($request1);
         $post             = $this->getArmorParams($armor);
         $request2         = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
         $validationResult = $antibot->validate($request2);
@@ -86,7 +86,7 @@ class HmacValidatorTest extends AbstractTestBase
         $hmacValidator->setMethodVector(HmacValidator::METHOD_GET, HmacValidator::METHOD_POST);
         $antibot->addValidator($hmacValidator);
         $request1 = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
-        $armor    = $antibot->armor($request1, true);
+        $armor    = $antibot->armorInputs($request1);
         $post     = $this->getArmorParams($armor);
 
         // Second request
@@ -119,7 +119,7 @@ class HmacValidatorTest extends AbstractTestBase
         $this->assertTrue($antibot->validate($request1)->isSkipped());
 
         // Create the armor for a second request, including submission time limits
-        $armor = $antibot->armor($request1, true);
+        $armor = $antibot->armorInputs($request1);
         $post  = $this->getArmorParams($armor);
 
         // A second call after only 1 second should fail validation
@@ -135,7 +135,7 @@ class HmacValidatorTest extends AbstractTestBase
         $this->assertTrue($validationResult->isValid());
 
         // Rearm, wait for 1 second and retry: Should succeed as it's a follow-up request
-        $armor = $antibot->armor($request3, true);
+        $armor = $antibot->armorInputs($request3);
         $post  = $this->getArmorParams($armor);
         sleep(1);
         $request4         = $this->createRequest(['REQUEST_METHOD' => 'POST', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
@@ -169,7 +169,7 @@ class HmacValidatorTest extends AbstractTestBase
         $hmacValidator->setMethodVector(HmacValidator::METHOD_GET, HmacValidator::METHOD_POST);
         $hmacValidator->setSubmissionTimes(1800, 10, 3);
         $antibot->addValidator($hmacValidator);
-        $armor = $antibot->armor($request, true);
+        $armor = $antibot->armorInputs($request);
         $this->assertTrue(is_array($armor));
         $this->assertEquals(2, count($armor));
         $this->assertEquals(40, strlen($armor[0]->getAttributes()['value']));

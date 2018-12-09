@@ -57,13 +57,13 @@ class HmacValidator extends AbstractValidator
     /**
      * Request method vector
      *
-     * @var string[]
+     * @var null|array
      */
     protected $methodVector = null;
     /**
      * Request submission times
      *
-     * @var float[]
+     * @var null|array
      */
     protected $submissionTimes = null;
     /**
@@ -236,8 +236,8 @@ class HmacValidator extends AbstractValidator
      */
     protected function validateHmac(string $hmac, ServerRequestInterface $request, Antibot $antibot): bool
     {
-        $previousMethod = null;
-        $hmacParams     = [$antibot->getUnique()];
+//        $previousMethod = null;
+        $hmacParams = [$antibot->getUnique()];
 
         // Short-circuit blocked HMAC
         $hmacBlock   = $hmacParams;
@@ -303,7 +303,6 @@ class HmacValidator extends AbstractValidator
             list($first, $min, $max) = $this->submissionTimes;
             $now       = time();
             $initial   = $now - $first;
-            $delay     = null;
             $data      = $antibot->getData();
             $timestamp = empty($data['ts']) ? null : $data['ts'];
 
@@ -411,23 +410,10 @@ class HmacValidator extends AbstractValidator
 
         // Invalidate the HMAC if there's a current, invalid one
         if (false) {
-
+            $hmacParams[] = self::BLOCK;
         } else {
-            $serverParams = $request->getServerParams();
-
-            // If the request method vector should be used
-            if (!empty($this->methodVector)) {
-                $requestMethod = empty($serverParams['REQUEST_METHOD']) ? '' : $serverParams['REQUEST_METHOD'];
-                $hmacParams[]  = $this->validateRequestMethod($requestMethod);
-            }
-
-            // If submission time checks are enabled
-            if (!empty($this->submissionTimes)) {
-                if (!empty($antibot->getData())) {
-                    $hmacParams[] = true;
-                }
-                $hmacParams[] = $now = time();
-            }
+            $this->calculateRequestMethodVectorHmac($request, $hmacParams);
+            $this->calculateRequestTimingHmac($antibot, $hmacParams, $now);
         }
 
         $hmac = HmacFactory::createFromString(serialize($hmacParams), $antibot->getUnique());
@@ -435,5 +421,39 @@ class HmacValidator extends AbstractValidator
         $antibot->getLogger()->debug("[HMAC] Created HMAC $hmac", $hmacParams);
 
         return $hmac;
+    }
+
+    /**
+     * Add request method vector data to the HMAC configuration
+     *
+     * @param ServerRequestInterface $request Request
+     * @param array $hmacParams               HMAC parameters
+     */
+    protected function calculateRequestMethodVectorHmac(ServerRequestInterface $request, array &$hmacParams): void
+    {
+        // If the request method vector should be used
+        if (!empty($this->methodVector)) {
+            $serverParams  = $request->getServerParams();
+            $requestMethod = empty($serverParams['REQUEST_METHOD']) ? '' : $serverParams['REQUEST_METHOD'];
+            $hmacParams[]  = $this->validateRequestMethod($requestMethod);
+        }
+    }
+
+    /**
+     * Add request timing data to the HMAC configuration
+     *
+     * @param Antibot $antibot  Antibot instance
+     * @param array $hmacParams HMAC parameters
+     * @param int|null $now     Current timestamp
+     */
+    protected function calculateRequestTimingHmac(Antibot $antibot, array &$hmacParams, int &$now = null): void
+    {
+        // If submission time checks are enabled
+        if (!empty($this->submissionTimes)) {
+            if (!empty($antibot->getData())) {
+                $hmacParams[] = true;
+            }
+            $hmacParams[] = $now = time();
+        }
     }
 }

@@ -43,6 +43,7 @@ use Jkphl\Antibot\Domain\Exceptions\RuntimeException;
 use Jkphl\Antibot\Domain\Exceptions\SkippedValidationException;
 use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
 use Jkphl\Antibot\Domain\Model\ValidationResult;
+use Jkphl\Antibot\Infrastructure\Model\InputElement;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -83,7 +84,7 @@ class Antibot implements LoggerAwareInterface
     /**
      * GET & POST data
      *
-     * @var null|string[]
+     * @var null|array
      */
     protected $data = null;
     /**
@@ -212,18 +213,18 @@ class Antibot implements LoggerAwareInterface
         }
 
         $this->logger->info('Finished validation');
+
         return $result;
     }
 
     /**
-     * Return the Antibot armor
+     * Create and return the raw armor input elements
      *
      * @param ServerRequestInterface $request Request
-     * @param bool $raw                       Return input elements
      *
-     * @return string|array Antibot armor
+     * @return InputElement[] Armor input elements
      */
-    public function armor(ServerRequestInterface $request, bool $raw = false)
+    public function armorInputs(ServerRequestInterface $request): array
     {
         $this->initialize($request);
         $armor = [];
@@ -237,7 +238,7 @@ class Antibot implements LoggerAwareInterface
             }
         }
 
-        return $raw ? $armor : implode('', array_map('strval', $armor));
+        return $armor;
     }
 
     /**
