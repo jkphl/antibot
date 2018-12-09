@@ -89,12 +89,12 @@ class HmacValidatorTest extends AbstractTestBase
         $armor    = $antibot->armor($request1, true);
         $post     = $this->getArmorParams($armor);
 
-        // Second call
+        // Second request
         $request2         = $this->createRequest(['REQUEST_METHOD' => 'POST', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
         $validationResult = $antibot->validate($request2);
         $this->assertTrue($validationResult->isValid());
 
-        // Third call using the wrong request method
+        // Third request using the wrong request method
         $request3         = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
         $validationResult = $antibot->validate($request3);
         $this->assertFalse($validationResult->isValid());
@@ -108,36 +108,50 @@ class HmacValidatorTest extends AbstractTestBase
     /**
      * Protected function test the HMAC request timing validation
      */
-    public function atestRequestTimingValidation(): void
+    public function testRequestTimingValidation(): void
     {
         $session       = md5(rand());
         $antibot       = $this->createAntibot($session);
         $hmacValidator = new HmacValidator();
-        $hmacValidator->setSubmissionTimes(10, 3, 1);
+        $hmacValidator->setSubmissionTimes(10, 5, 1);
         $antibot->addValidator($hmacValidator);
         $request1 = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
-        $armor    = $antibot->armor($request1, true);
-        $post     = $this->getArmorParams($armor);
-        print_r($post);
+        $this->assertTrue($antibot->validate($request1)->isSkipped());
 
-        // Wait for 4 seconds
-//        sleep(4);
+        // Create the armor for a second request, including submission time limits
+        $armor = $antibot->armor($request1, true);
+        $post  = $this->getArmorParams($armor);
 
-        // Second call
+        // A second call after only 1 second should fail validation
+        sleep(1);
         $request2         = $this->createRequest(['REQUEST_METHOD' => 'POST', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
         $validationResult = $antibot->validate($request2);
-        print_r($validationResult);
+        $this->assertTrue($validationResult->isFailed());
+
+        // Waiting for 4 more seconds should succeed
+        sleep(5);
+        $request3         = $this->createRequest(['REQUEST_METHOD' => 'POST', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
+        $validationResult = $antibot->validate($request3);
         $this->assertTrue($validationResult->isValid());
 
-        // Third call using the wrong request method
-        $request3         = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
-        $validationResult = $antibot->validate($request3);
-        $this->assertFalse($validationResult->isValid());
+        // Rearm, wait for 1 second and retry: Should succeed as it's a follow-up request
+        $armor = $antibot->armor($request3, true);
+        $post  = $this->getArmorParams($armor);
+        sleep(1);
+        $request4         = $this->createRequest(['REQUEST_METHOD' => 'POST', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
+        $validationResult = $antibot->validate($request4);
+        $this->assertTrue($validationResult->isValid());
+
+        // Wait for another 10 seconds and retry: Should fail as it exceeded the maximum time
+        sleep(10);
+        $request5         = $this->createRequest(['REQUEST_METHOD' => 'POST', 'REMOTE_ADDR' => '1.2.3.4'], [], $post);
+        $validationResult = $antibot->validate($request5);
+        $this->assertTrue($validationResult->isFailed());
         $this->assertTrue($validationResult->hasErrors());
         $errors = $validationResult->getErrors();
         $this->assertEquals(1, count($errors));
         $this->assertInstanceOf(HmacValidationException::class, $errors[0]);
-        $this->assertEquals(1544292604, $errors[0]->getCode());
+        $this->assertEquals(1544292684, $errors[0]->getCode());
     }
 
     /**
