@@ -171,6 +171,17 @@ class Antibot implements LoggerAwareInterface
     }
 
     /**
+     * Add a validator
+     *
+     * @param ValidatorInterface $validator Validator
+     */
+    public function addValidator(ValidatorInterface $validator): void
+    {
+        $this->checkImmutable();
+        $this->validators[] = $validator;
+    }
+
+    /**
      * Validate a request
      *
      * @param ServerRequestInterface $request Request

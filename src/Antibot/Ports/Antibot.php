@@ -49,17 +49,6 @@ use Psr\Http\Message\ServerRequestInterface;
 class Antibot extends \Jkphl\Antibot\Domain\Antibot
 {
     /**
-     * Add a validator
-     *
-     * @param ValidatorInterface $validator Validator
-     */
-    public function addValidator(ValidatorInterface $validator): void
-    {
-        $this->checkImmutable();
-        $this->validators[] = $validator;
-    }
-
-    /**
      * Set the prefix
      *
      * @param string $prefix Prefix
