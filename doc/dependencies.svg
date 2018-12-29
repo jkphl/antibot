@@ -52,7 +52,7 @@
 <title>jkphl/antibot&#45;&gt;psr/log</title>
 <path fill="none" stroke="#1a2833" d="M141.1549,-165.9902C160.9206,-153.838 187.2034,-137.6789 208.6163,-124.5139"/>
 <polygon fill="#1a2833" stroke="#1a2833" points="210.4743,-127.4803 217.1599,-119.2612 206.808,-121.5172 210.4743,-127.4803"/>
-<text text-anchor="middle" x="196.8619" y="-140" font-family="Times,serif" font-size="10.00" fill="#767676">^1.1</text>
+<text text-anchor="middle" x="196.8619" y="-140" font-family="Times,serif" font-size="10.00" fill="#767676">^1.0</text>
 </g>
 <!-- psr/http&#45;message&#45;&gt;php -->
 <g id="edge4" class="edge">
