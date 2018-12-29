@@ -10,7 +10,7 @@ This library requires PHP >=7.2 or later. I recommend using the latest available
 
 ## Dependencies
 
-![Composer dependency graph](https://rawgit.com/jkphl/antibot/master/doc/dependencies.svg)
+![Composer dependency graph](https://cdn.jsdelivr.net/gh/jkphl/antibot@master/doc/dependencies.svg)
 
 ## Quality
 
@@ -35,19 +35,18 @@ If you discover any security related issues, please email joschi@tollwerk.de ins
 
 Copyright © 2018 [Joschi Kuphal][author-url] / joschi@tollwerk.de. Licensed under the terms of the [MIT license](../LICENSE).
 
-[codeclimate-image]: https://scrutinizer-ci.com/g/jkphl/antibot/badges/quality-score.png?b=master
-[codeclimate-url]: https://scrutinizer-ci.com/g/jkphl/antibot/?branch=master
-[coveralls-url]: https://coveralls.io/github/jkphl/antibot?branch=master
-[clear-architecture-url]: https://github.com/jkphl/clear-architecture
-[travis-url]: https://travis-ci.org/jkphl/antibot
-[clear-architecture-image]: https://img.shields.io/badge/Clear%20Architecture-%E2%9C%94-brightgreen.svg
-[scrutinizer-url]: https://scrutinizer-ci.com/g/jkphl/antibot/?branch=master
 [travis-image]: https://secure.travis-ci.org/jkphl/antibot.svg
-[scrutinizer-image]: https://scrutinizer-ci.com/g/jkphl/antibot/badges/quality-score.png?b=master
+[travis-url]: https://travis-ci.org/jkphl/antibot
 [coveralls-image]: https://coveralls.io/repos/jkphl/antibot/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/jkphl/antibot?branch=master
+[scrutinizer-image]: https://scrutinizer-ci.com/g/jkphl/antibot/badges/quality-score.png?b=master
+[scrutinizer-url]: https://scrutinizer-ci.com/g/jkphl/antibot/?branch=master
+[codeclimate-image]: https://lima.codeclimate.com/github/jkphl/antibot/badges/gpa.svg
+[codeclimate-url]: https://lima.codeclimate.com/github/jkphl/antibot
 
-
-[PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
-[PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
+[clear-architecture-image]: https://img.shields.io/badge/Clear%20Architecture-%E2%9C%94-brightgreen.svg
+[clear-architecture-url]: https://github.com/jkphl/clear-architecture
 [author-url]: https://jkphl.is
 [PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
+[PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
+[PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md

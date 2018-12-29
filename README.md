@@ -14,7 +14,7 @@ This library requires PHP >=7.2 or later. I recommend using the latest available
 
 ## Dependencies
 
-![Composer dependency graph](https://rawgit.com/jkphl/antibot/master/doc/dependencies.svg)
+![Composer dependency graph](https://cdn.jsdelivr.net/gh/jkphl/antibot@master/doc/dependencies.svg)
 
 ## Quality
 
