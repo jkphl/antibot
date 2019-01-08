@@ -71,7 +71,7 @@ class Antibot implements LoggerAwareInterface
      */
     protected $prefix;
     /**
-     *
+     * Parameter scope nodes
      *
      * @var array
      */
@@ -313,8 +313,8 @@ class Antibot implements LoggerAwareInterface
      */
     protected function extractData(ServerRequestInterface $request): void
     {
-        $get        = $this->extractScopedData($request->getQueryParams());
-        $post       = $this->extractScopedData($request->getParsedBody());
+        $get        = $this->extractScopedData($request->getQueryParams() ?? []);
+        $post       = $this->extractScopedData($request->getParsedBody() ?? []);
         $this->data = (($get !== null) || ($post !== null)) ? array_merge((array)$get, (array)$post) : null;
     }
 

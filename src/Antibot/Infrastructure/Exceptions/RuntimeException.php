@@ -5,16 +5,16 @@
  *
  * @category   Jkphl
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Infrastructure\Model
+ * @subpackage Jkphl\Antibot\Infrastructure\Exceptions
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
- * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
+ * @copyright  Copyright © 2019 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
  */
 
 /***********************************************************************************
  *  The MIT License (MIT)
  *
- *  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net>
+ *  Copyright © 2019 Joschi Kuphal <joschi@kuphal.net>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -34,61 +34,26 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Infrastructure\Model;
-
-use Jkphl\Antibot\Infrastructure\Exceptions\RuntimeException;
-use Jkphl\Antibot\Ports\Contract\LookupStrategyInterface;
+namespace Jkphl\Antibot\Infrastructure\Exceptions;
 
 /**
- * Abstract Lookup Validator
+ * Runtime Exception
  *
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Infrastructure\Model
+ * @subpackage Jkphl\Antibot\Infrastructure\Exceptions
  */
-abstract class AbstractLookupValidator extends AbstractValidator implements \Serializable
+class RuntimeException extends \Jkphl\Antibot\Domain\Exceptions\RuntimeException
 {
     /**
-     * Lookup strategy
+     * Lookup validator deserialization not supported
      *
-     * @var LookupStrategyInterface
+     * @var string
      */
-    protected $strategy;
-
+    const UNSUPPORTED_LOOKUP_VALIDATOR_DESERIALIZATION_STR = 'Lookup validator deserialization is not supported';
     /**
-     * Constructor
+     * Lookup validator deserialization not supported
      *
-     * @param LookupStrategyInterface $strategy Lookup strategy
+     * @var int
      */
-    public function __construct(LookupStrategyInterface $strategy)
-    {
-        $this->strategy = $strategy;
-    }
-
-    /**
-     * Serialize this lookup validator
-     *
-     * @return string
-     */
-    public function serialize(): string
-    {
-        $data             = get_object_vars($this);
-        $data['strategy'] = get_class($this->strategy);
-
-        return serialize($data);
-    }
-
-    /**
-     * Deserialization
-     *
-     * @param string $serialized Deserialized lookup validator
-     *
-     * @throws RuntimeException If the lookup validator should be deserialized
-     */
-    public function unserialize($serialized)
-    {
-        throw new RuntimeException(
-            RuntimeException::UNSUPPORTED_LOOKUP_VALIDATOR_DESERIALIZATION_STR,
-            RuntimeException::UNSUPPORTED_LOOKUP_VALIDATOR_DESERIALIZATION
-        );
-    }
+    const UNSUPPORTED_LOOKUP_VALIDATOR_DESERIALIZATION = 1546966850;
 }
