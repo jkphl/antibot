@@ -94,7 +94,7 @@ class HoneypotValidator extends AbstractValidator
     {
         $data = array_merge((array)$request->getQueryParams(), (array)$request->getParsedBody());
 
-        return $this->validateHoneypotsRecursive($this->honeypots, $data, $antibot);
+        return $this->validateHoneypotsRecursive($antibot->getScopedParameters($this->honeypots), $data, $antibot);
     }
 
     /**
@@ -147,7 +147,7 @@ class HoneypotValidator extends AbstractValidator
     public function armor(ServerRequestInterface $request, Antibot $antibot): array
     {
         $armor = [];
-        $this->createHoneypotsRecursive($this->honeypots, $armor);
+        $this->createHoneypotsRecursive($antibot->getScopedParameters($this->honeypots), $armor);
 
         return $armor;
     }

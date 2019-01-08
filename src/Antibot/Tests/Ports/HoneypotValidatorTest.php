@@ -53,7 +53,7 @@ class HoneypotValidatorTest extends AbstractTestBase
      */
     public function testHoneypots(): void
     {
-        $renderer          = function (InputElement $input, string $html) {
+        $renderer          = function(InputElement $input, string $html) {
             return '<label style="display:none">'.$html.'</label>';
         };
         $antibot           = $this->createAntibot();
@@ -68,7 +68,7 @@ class HoneypotValidatorTest extends AbstractTestBase
         $armor = $antibot->armorInputs($request1);
         $this->assertTrue(is_array($armor));
         $this->assertEquals(2, count($armor));
-        $this->assertEquals('email', $armor[0]->getAttributes()['name']);
+        $this->assertEquals($antibot->getParameterPrefix().'[email]', $armor[0]->getAttributes()['name']);
         $this->assertEquals(0, strlen($armor[0]->getAttributes()['value']));
         $post = $this->getArmorParams($armor);
 
@@ -78,10 +78,16 @@ class HoneypotValidatorTest extends AbstractTestBase
         $this->assertTrue($validationResult->isValid());
 
         // A non-empty honeypot should fail
-        $post['personal']['name'] = 'John Doe';
-        $request3                 = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'], [],
-            $post);
-        $validationResult         = $antibot->validate($request3);
+        $post[$antibot->getParameterPrefix()]['personal']['name'] = 'John Doe';
+        $request3                                                 = $this->createRequest(
+            [
+                'REQUEST_METHOD' => 'GET',
+                'REMOTE_ADDR'    => '1.2.3.4'
+            ],
+            [],
+            $post
+        );
+        $validationResult                                         = $antibot->validate($request3);
         $this->assertTrue($validationResult->isFailed());
     }
 }

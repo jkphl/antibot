@@ -46,5 +46,16 @@ use Jkphl\Antibot\Domain\Contract\AntibotException;
  */
 class InvalidArgumentException extends \InvalidArgumentException implements AntibotException
 {
-
+    /**
+     * Invalid parameter scope node
+     *
+     * @var string
+     */
+    const INVALID_SCOPE_NODE_STR = 'Invalid parameter scope node "%s"';
+    /**
+     * Initialize first
+     *
+     * @var int
+     */
+    const INVALID_SCOPE_NODE = 1546963356;
 }

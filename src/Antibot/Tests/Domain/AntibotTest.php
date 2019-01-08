@@ -57,7 +57,7 @@ class AntibotTest extends AbstractTestBase
     /**
      * General test
      *
-     * @expectedException Jkphl\Antibot\Domain\Exceptions\RuntimeException
+     * @expectedException \Jkphl\Antibot\Domain\Exceptions\RuntimeException
      * @expectedExceptionCode 1544191654
      */
     public function testAntibot(): void
@@ -78,7 +78,7 @@ class AntibotTest extends AbstractTestBase
     /**
      * Test uninitialized data
      *
-     * @expectedException Jkphl\Antibot\Domain\Exceptions\RuntimeException
+     * @expectedException \Jkphl\Antibot\Domain\Exceptions\RuntimeException
      * @expectedExceptionCode 1544191654
      */
     public function testUnitializedData(): void
@@ -86,6 +86,26 @@ class AntibotTest extends AbstractTestBase
         $antibot = new Antibot(md5(rand()));
 
         $antibot->getData();
+    }
+
+    /**
+     * Parameter scope test
+     *
+     * @expectedException \Jkphl\Antibot\Domain\Exceptions\InvalidArgumentException
+     * @expectedExceptionCode 1546963356
+     */
+    public function testParameterScope(): void
+    {
+        $antibot = new Antibot(md5(rand()));
+        $this->assertInstanceOf(Antibot::class, $antibot);
+        $antibot->validate($this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']));
+
+        $antibot->setParameterScope('one', 'two');
+        $scopedParameters = $antibot->getScopedParameters(['three' => 4]);
+        $this->assertTrue(isset($scopedParameters['one']['two'][$antibot->getParameterPrefix()]['three']));
+        $this->assertEquals(4, $scopedParameters['one']['two'][$antibot->getParameterPrefix()]['three']);
+
+        $antibot->setParameterScope(false);
     }
 
     /**

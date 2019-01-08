@@ -39,6 +39,7 @@ namespace Jkphl\Antibot\Domain;
 use Jkphl\Antibot\Domain\Contract\ValidatorInterface;
 use Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException;
 use Jkphl\Antibot\Domain\Exceptions\ErrorException;
+use Jkphl\Antibot\Domain\Exceptions\InvalidArgumentException;
 use Jkphl\Antibot\Domain\Exceptions\RuntimeException;
 use Jkphl\Antibot\Domain\Exceptions\SkippedValidationException;
 use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
@@ -69,6 +70,12 @@ class Antibot implements LoggerAwareInterface
      * @var string
      */
     protected $prefix;
+    /**
+     *
+     *
+     * @var array
+     */
+    protected $scope = [];
     /**
      * Unique signature
      *
@@ -306,11 +313,30 @@ class Antibot implements LoggerAwareInterface
      */
     protected function extractData(ServerRequestInterface $request): void
     {
-        $get        = $request->getQueryParams();
-        $get        = empty($get[$this->parameterPrefix]) ? null : $get[$this->parameterPrefix];
-        $post       = $request->getParsedBody();
-        $post       = empty($post[$this->parameterPrefix]) ? null : $post[$this->parameterPrefix];
+        $get        = $this->extractScopedData($request->getQueryParams());
+        $post       = $this->extractScopedData($request->getParsedBody());
         $this->data = (($get !== null) || ($post !== null)) ? array_merge((array)$get, (array)$post) : null;
+    }
+
+    /**
+     * Extract scoped data
+     *
+     * @param array $data Source data
+     *
+     * @return array|null Scoped data
+     */
+    protected function extractScopedData(array $data): ?array
+    {
+        // Run through all scope nodes
+        foreach (array_merge($this->scope, [$this->getParameterPrefix()]) as $node) {
+            if (!isset($data[$node])) {
+                return null;
+            }
+
+            $data = $data[$node];
+        }
+
+        return $data;
     }
 
     /**
@@ -364,5 +390,43 @@ class Antibot implements LoggerAwareInterface
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
+    }
+
+    /**
+     * Set the parameter scope
+     *
+     * @param string[] ...$scope Parameter scope
+     */
+    public function setParameterScope(...$scope): void
+    {
+        // Run through all scope nodes
+        foreach ($scope as $node) {
+            if (!is_string($node) || empty($node)) {
+                throw new InvalidArgumentException(
+                    sprintf(InvalidArgumentException::INVALID_SCOPE_NODE_STR, $node),
+                    InvalidArgumentException::INVALID_SCOPE_NODE
+                );
+            }
+
+            $this->scope[] = $node;
+        }
+    }
+
+    /**
+     * Scope a set of parameters
+     *
+     * @param array $params Parameters
+     *
+     * @return array Scoped parameters
+     */
+    public function getScopedParameters(array $params): array
+    {
+        $params = [$this->getParameterPrefix() => $params];
+        $scope  = $this->scope;
+        while ($node = array_pop($scope)) {
+            $params = [$node => $params];
+        }
+
+        return $params;
     }
 }
