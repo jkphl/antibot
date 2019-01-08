@@ -92,9 +92,7 @@ class HoneypotValidator extends AbstractValidator
      */
     public function validate(ServerRequestInterface $request, Antibot $antibot): bool
     {
-        $data = array_merge((array)$request->getQueryParams(), (array)$request->getParsedBody());
-
-        return $this->validateHoneypotsRecursive([$antibot->getParameterPrefix() => $this->honeypots], $data, $antibot);
+        return $this->validateHoneypotsRecursive($this->honeypots, (array)$antibot->getData(), $antibot);
     }
 
     /**
