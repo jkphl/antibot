@@ -36,13 +36,15 @@
 
 namespace Jkphl\Antibot\Domain\Exceptions;
 
+use Jkphl\Antibot\Domain\Contract\AntibotException;
+
 /**
  * Runtime Exception
  *
  * @package    Jkphl\Antibot
  * @subpackage Jkphl\Antibot\Domain\Exceptions
  */
-class RuntimeException extends \RuntimeException
+class RuntimeException extends \RuntimeException implements AntibotException
 {
     /**
      * Immutable instance
