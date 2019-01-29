@@ -37,12 +37,13 @@
 namespace Jkphl\Antibot\Tests\Domain;
 
 use Jkphl\Antibot\Domain\Antibot;
+use Jkphl\Antibot\Domain\Contract\ValidationResultInterface;
 use Jkphl\Antibot\Domain\Contract\ValidatorInterface;
 use Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException;
 use Jkphl\Antibot\Domain\Exceptions\ErrorException;
 use Jkphl\Antibot\Domain\Exceptions\SkippedValidationException;
 use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
-use Jkphl\Antibot\Domain\Model\ValidationResult;
+use Jkphl\Antibot\Ports\ValidationResult;
 use Jkphl\Antibot\Tests\AbstractTestBase;
 use Psr\Log\NullLogger;
 
@@ -98,7 +99,10 @@ class AntibotTest extends AbstractTestBase
     {
         $antibot = new Antibot(md5(rand()));
         $this->assertInstanceOf(Antibot::class, $antibot);
-        $antibot->validate($this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']));
+        $antibot->validateRequest(
+            $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']),
+            $this->createMock(ValidationResultInterface::class)
+        );
 
         $antibot->setParameterScope('one', 'two');
         $scopedParameters = $antibot->getScopedParameters(['three' => 4]);
@@ -118,7 +122,7 @@ class AntibotTest extends AbstractTestBase
         $validator->method('validate')->will($this->throwException(new SkippedValidationException('skipped')));
         $antibot->addValidator($validator);
         $request          = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
-        $validationResult = $antibot->validate($request);
+        $validationResult = $antibot->validateRequest($request, new ValidationResult());
         $this->assertInstanceOf(ValidationResult::class, $validationResult);
         $this->assertFalse($validationResult->isValid());
         $this->assertFalse($validationResult->isFailed());
@@ -136,7 +140,7 @@ class AntibotTest extends AbstractTestBase
         $validator->method('validate')->will($this->throwException(new BlacklistValidationException('blacklist')));
         $antibot->addValidator($validator);
         $request          = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
-        $validationResult = $antibot->validate($request);
+        $validationResult = $antibot->validateRequest($request, new ValidationResult());
         $this->assertInstanceOf(ValidationResult::class, $validationResult);
         $this->assertFalse($validationResult->isValid());
         $this->assertTrue($validationResult->isFailed());
@@ -154,7 +158,7 @@ class AntibotTest extends AbstractTestBase
         $validator->method('validate')->will($this->throwException(new WhitelistValidationException('whitelist')));
         $antibot->addValidator($validator);
         $request          = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
-        $validationResult = $antibot->validate($request);
+        $validationResult = $antibot->validateRequest($request, new ValidationResult());
         $this->assertInstanceOf(ValidationResult::class, $validationResult);
         $this->assertTrue($validationResult->isValid());
         $this->assertFalse($validationResult->isFailed());
@@ -173,7 +177,7 @@ class AntibotTest extends AbstractTestBase
         $validator->method('validate')->will($this->throwException(new ErrorException('error', $error)));
         $antibot->addValidator($validator);
         $request          = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
-        $validationResult = $antibot->validate($request);
+        $validationResult = $antibot->validateRequest($request, new ValidationResult());
         $this->assertInstanceOf(ValidationResult::class, $validationResult);
         $this->assertFalse($validationResult->isValid());
         $this->assertTrue($validationResult->isFailed());
@@ -196,7 +200,7 @@ class AntibotTest extends AbstractTestBase
         $validator->method('validate')->willReturn(false);
         $antibot->addValidator($validator);
         $request          = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
-        $validationResult = $antibot->validate($request);
+        $validationResult = $antibot->validateRequest($request, new ValidationResult());
         $this->assertInstanceOf(ValidationResult::class, $validationResult);
         $this->assertFalse($validationResult->isValid());
         $this->assertTrue($validationResult->isFailed());
@@ -214,7 +218,7 @@ class AntibotTest extends AbstractTestBase
         $validator->method('validate')->willReturn(true);
         $antibot->addValidator($validator);
         $request          = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
-        $validationResult = $antibot->validate($request);
+        $validationResult = $antibot->validateRequest($request, new ValidationResult());
         $this->assertInstanceOf(ValidationResult::class, $validationResult);
         $this->assertTrue($validationResult->isValid());
         $this->assertFalse($validationResult->isFailed());

@@ -37,7 +37,7 @@
 namespace Jkphl\Antibot\Tests\Domain;
 
 use Jkphl\Antibot\Domain\Exceptions\ErrorException;
-use Jkphl\Antibot\Domain\Model\ValidationResult;
+use Jkphl\Antibot\Ports\ValidationResult;
 use Jkphl\Antibot\Tests\AbstractTestBase;
 
 /**

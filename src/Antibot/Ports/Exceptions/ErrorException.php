@@ -5,7 +5,7 @@
  *
  * @category   Jkphl
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Ports
+ * @subpackage Jkphl\Antibot\Ports\Exceptions
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
@@ -34,61 +34,15 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Ports;
-
-use Jkphl\Antibot\Ports\Exceptions\InvalidArgumentException;
-use Psr\Http\Message\ServerRequestInterface;
+namespace Jkphl\Antibot\Ports\Exceptions;
 
 /**
- * Antibot Facade
+ * Error Exception
  *
  * @package    Jkphl\Antibot
- * @subpackage Jkphl\Antibot\Ports
+ * @subpackage Jkphl\Antibot\Ports\Exceptions
  */
-class Antibot extends \Jkphl\Antibot\Domain\Antibot
+class ErrorException extends \Jkphl\Antibot\Domain\Exceptions\ErrorException
 {
-    /**
-     * Set the prefix
-     *
-     * @param string $prefix Prefix
-     *
-     * @api
-     */
-    public function setPrefix(string $prefix): void
-    {
-        $prefix = trim($prefix);
-        if (!strlen($prefix)) {
-            throw new InvalidArgumentException(
-                sprintf(InvalidArgumentException::INVALID_PREFIX_STR, $prefix),
-                InvalidArgumentException::INVALID_PREFIX
-            );
-        }
-        $this->prefix = $prefix;
-    }
 
-    /**
-     * Return the Antibot armor
-     *
-     * @param ServerRequestInterface $request Request
-     *
-     * @return string Antibot armor (HTML)
-     * @api
-     */
-    public function armor(ServerRequestInterface $request)
-    {
-        return implode('', array_map('strval', $this->armorInputs($request)));
-    }
-
-    /**
-     * Validate a request
-     *
-     * @param ServerRequestInterface $request Request
-     *
-     * @return ValidationResult Validation result
-     * @api
-     */
-    public function validate(ServerRequestInterface $request): ValidationResult
-    {
-        return parent::validateRequest($request, new ValidationResult());
-    }
 }

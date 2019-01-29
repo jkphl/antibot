@@ -36,6 +36,7 @@
 
 namespace Jkphl\Antibot\Domain;
 
+use Jkphl\Antibot\Domain\Contract\ValidationResultInterface;
 use Jkphl\Antibot\Domain\Contract\ValidatorInterface;
 use Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException;
 use Jkphl\Antibot\Domain\Exceptions\ErrorException;
@@ -43,7 +44,6 @@ use Jkphl\Antibot\Domain\Exceptions\InvalidArgumentException;
 use Jkphl\Antibot\Domain\Exceptions\RuntimeException;
 use Jkphl\Antibot\Domain\Exceptions\SkippedValidationException;
 use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
-use Jkphl\Antibot\Domain\Model\ValidationResult;
 use Jkphl\Antibot\Infrastructure\Model\InputElement;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -191,15 +191,18 @@ class Antibot implements LoggerAwareInterface
     /**
      * Validate a request
      *
-     * @param ServerRequestInterface $request Request
+     * @param ServerRequestInterface $request   Request
+     * @param ValidationResultInterface $result Validation result
      *
-     * @return ValidationResult Validation result
+     * @return ValidationResultInterface Validation result
+     * @internal
      */
-    public function validate(ServerRequestInterface $request): ValidationResult
-    {
+    public function validateRequest(
+        ServerRequestInterface $request,
+        ValidationResultInterface $result
+    ): ValidationResultInterface {
         $this->logger->info('Start validation');
         $this->initialize($request);
-        $result = new ValidationResult();
 
         // Run through all validators (in order)
         /** @var ValidatorInterface $validator */

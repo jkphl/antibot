@@ -34,8 +34,9 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Domain\Model;
+namespace Jkphl\Antibot\Ports;
 
+use Jkphl\Antibot\Domain\Contract\ValidationResultInterface;
 use Jkphl\Antibot\Domain\Exceptions\ErrorException;
 
 /**
@@ -44,7 +45,7 @@ use Jkphl\Antibot\Domain\Exceptions\ErrorException;
  * @package    Jkphl\Antibot
  * @subpackage Jkphl\Antibot\Domain\Model
  */
-class ValidationResult
+class ValidationResult implements ValidationResultInterface
 {
     /**
      * Request was valid
