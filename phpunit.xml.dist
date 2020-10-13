@@ -1,20 +1,20 @@
-<phpunit bootstrap="./phpunit.php">
-    <testsuites>
-        <testsuite name="Default">
-            <directory>./src/Antibot/Tests</directory>
-        </testsuite>
-    </testsuites>
-
-    <logging>
-        <log type="coverage-xml" target="build/coverage"/>
-    </logging>
-
-    <filter>
-        <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src</directory>
-            <exclude>
-                <directory suffix=".php">src/Antibot/Tests</directory>
-            </exclude>
-        </whitelist>
-    </filter>
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="./phpunit.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage includeUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+    <exclude>
+      <directory suffix=".php">src/Antibot/Tests</directory>
+    </exclude>
+    <report>
+      <xml outputDirectory="build/coverage"/>
+    </report>
+  </coverage>
+  <testsuites>
+    <testsuite name="Default">
+      <directory>./src/Antibot/Tests</directory>
+    </testsuite>
+  </testsuites>
+  <logging/>
 </phpunit>
