@@ -53,7 +53,7 @@ use Jkphl\Antibot\Tests\AbstractTestBase;
 class LookupValidatorTest extends AbstractTestBase
 {
     /**
-     * Public function test the IP whitelist validator
+     * Test the IP whitelist validator
      */
     public function testIpWhitelist(): void
     {
@@ -69,7 +69,7 @@ class LookupValidatorTest extends AbstractTestBase
     }
 
     /**
-     * Public function test the IP blacklist validator
+     * Test the IP blacklist validator
      */
     public function testIpBlacklist(): void
     {
@@ -85,7 +85,7 @@ class LookupValidatorTest extends AbstractTestBase
     }
 
     /**
-     * Public function test the parameter blacklist validator with a GET parameter
+     * Test the parameter blacklist validator with a GET parameter
      */
     public function testGetParamBlacklist(): void
     {
@@ -104,7 +104,7 @@ class LookupValidatorTest extends AbstractTestBase
     }
 
     /**
-     * Public function test the parameter blacklist validator with a POST parameter
+     * Test the parameter blacklist validator with a POST parameter
      */
     public function testPostParamBlacklist(): void
     {

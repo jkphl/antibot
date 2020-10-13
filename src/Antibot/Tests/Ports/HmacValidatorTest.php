@@ -49,7 +49,7 @@ use Jkphl\Antibot\Tests\AbstractTestBase;
 class HmacValidatorTest extends AbstractTestBase
 {
     /**
-     * Protected function test the general HMAC validation
+     * Test the general HMAC validation
      *
      */
     public function testGeneralValidation(): void
@@ -75,7 +75,7 @@ class HmacValidatorTest extends AbstractTestBase
     }
 
     /**
-     * Protected function test the HMAC request method order validation
+     * Test the HMAC request method order validation
      */
     public function testRequestMethodOrderValidation(): void
     {
@@ -104,7 +104,7 @@ class HmacValidatorTest extends AbstractTestBase
     }
 
     /**
-     * Protected function test the HMAC request timing validation
+     * Test the HMAC request timing validation
      */
     public function testRequestTimingValidation(): void
     {
