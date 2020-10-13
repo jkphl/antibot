@@ -7,14 +7,14 @@
  * @package    Jkphl\Antibot
  * @subpackage Jkphl\Antibot\Tests\Ports
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
- * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
+ * @copyright  Copyright © 2020 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
  */
 
 /***********************************************************************************
  *  The MIT License (MIT)
  *
- *  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net>
+ *  Copyright © 2020 Joschi Kuphal <joschi@kuphal.net>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -53,8 +53,8 @@ class HoneypotValidatorTest extends AbstractTestBase
      */
     public function testHoneypots(): void
     {
-        $renderer          = function(InputElement $input, string $html) {
-            return '<label style="display:none">'.$html.'</label>';
+        $renderer          = function (InputElement $input, string $html) {
+            return '<label style="display:none">' . $html . '</label>';
         };
         $antibot           = $this->createAntibot();
         $honeypotValidator = new HoneypotValidator(['email' => 'email', 'personal' => ['name' => 'text']], $renderer);
@@ -68,7 +68,7 @@ class HoneypotValidatorTest extends AbstractTestBase
         $armor = $antibot->armorInputs($request1);
         $this->assertTrue(is_array($armor));
         $this->assertEquals(2, count($armor));
-        $this->assertEquals($antibot->getParameterPrefix().'[email]', $armor[0]->getAttributes()['name']);
+        $this->assertEquals($antibot->getParameterPrefix() . '[email]', $armor[0]->getAttributes()['name']);
         $this->assertEquals(0, strlen($armor[0]->getAttributes()['value']));
         $post = $this->getArmorParams($armor);
 

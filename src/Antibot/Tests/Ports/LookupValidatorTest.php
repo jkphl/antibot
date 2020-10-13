@@ -7,14 +7,14 @@
  * @package    Jkphl\Antibot
  * @subpackage Jkphl\Antibot\Tests\Ports
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
- * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
+ * @copyright  Copyright © 2020 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
  */
 
 /***********************************************************************************
  *  The MIT License (MIT)
  *
- *  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net>
+ *  Copyright © 2020 Joschi Kuphal <joschi@kuphal.net>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -36,6 +36,8 @@
 
 namespace Jkphl\Antibot\Tests\Ports;
 
+use Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException;
+use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
 use Jkphl\Antibot\Ports\LookupStrategy\ArrayLookupStrategy;
 use Jkphl\Antibot\Ports\Validators\IpBlacklistValidator;
 use Jkphl\Antibot\Ports\Validators\IpWhitelistValidator;
@@ -52,11 +54,10 @@ class LookupValidatorTest extends AbstractTestBase
 {
     /**
      * Public function test the IP whitelist validator
-     *
-     * @expectedException \Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException
      */
     public function testIpWhitelist(): void
     {
+        $this->expectException(WhitelistValidationException::class);
         $request               = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
         $arrayWhitelist1       = new ArrayLookupStrategy(['4.3.2.1']);
         $ipWhitelistValidator1 = new IpWhitelistValidator($arrayWhitelist1);
@@ -69,11 +70,10 @@ class LookupValidatorTest extends AbstractTestBase
 
     /**
      * Public function test the IP blacklist validator
-     *
-     * @expectedException \Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException
      */
     public function testIpBlacklist(): void
     {
+        $this->expectException(BlacklistValidationException::class);
         $request               = $this->createRequest(['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4']);
         $arrayBlacklist1       = new ArrayLookupStrategy(['4.3.2.1']);
         $ipBlacklistValidator1 = new IpBlacklistValidator($arrayBlacklist1);
@@ -86,11 +86,10 @@ class LookupValidatorTest extends AbstractTestBase
 
     /**
      * Public function test the parameter blacklist validator with a GET parameter
-     *
-     * @expectedException \Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException
      */
     public function testGetParamBlacklist(): void
     {
+        $this->expectException(BlacklistValidationException::class);
         $request                  = $this->createRequest(
             ['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'],
             ['name' => 'John Doe', 'email' => 'test@example.com']
@@ -106,11 +105,10 @@ class LookupValidatorTest extends AbstractTestBase
 
     /**
      * Public function test the parameter blacklist validator with a POST parameter
-     *
-     * @expectedException \Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException
      */
     public function testPostParamBlacklist(): void
     {
+        $this->expectException(BlacklistValidationException::class);
         $request                  = $this->createRequest(
             ['REQUEST_METHOD' => 'GET', 'REMOTE_ADDR' => '1.2.3.4'],
             [],

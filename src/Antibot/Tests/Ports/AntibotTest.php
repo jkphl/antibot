@@ -7,14 +7,14 @@
  * @package    Jkphl\Antibot
  * @subpackage Jkphl\Antibot\Tests\Ports
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
- * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
+ * @copyright  Copyright © 2020 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
  */
 
 /***********************************************************************************
  *  The MIT License (MIT)
  *
- *  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net>
+ *  Copyright © 2020 Joschi Kuphal <joschi@kuphal.net>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -37,6 +37,7 @@
 namespace Jkphl\Antibot\Tests\Ports;
 
 use Jkphl\Antibot\Ports\Antibot;
+use Jkphl\Antibot\Ports\Exceptions\InvalidArgumentException;
 use Jkphl\Antibot\Ports\LookupStrategy\ArrayLookupStrategy;
 use Jkphl\Antibot\Ports\Validators\IpWhitelistValidator;
 use Jkphl\Antibot\Tests\AbstractTestBase;
@@ -51,12 +52,12 @@ class AntibotTest extends AbstractTestBase
 {
     /**
      * Test the prefix
-     *
-     * @expectedException \Jkphl\Antibot\Ports\Exceptions\InvalidArgumentException
-     * @expectedExceptionCode 1544118177
      */
     public function testPrefix()
     {
+        $this->expectExceptionCode(1544118177);
+        $this->expectException(InvalidArgumentException::class);
+
         $antibot = $this->createAntibot();
         $this->assertInstanceOf(Antibot::class, $antibot);
         $this->assertEquals(Antibot::DEFAULT_PREFIX, $antibot->getPrefix());

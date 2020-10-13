@@ -37,7 +37,7 @@ If you discover any security related issues, please email joschi@tollwerk.de ins
 
 ## License
 
-Copyright © 2018 [Joschi Kuphal][author-url] / joschi@tollwerk.de. Licensed under the terms of the [MIT license](LICENSE).
+Copyright © 2020 [Joschi Kuphal][author-url] / joschi@tollwerk.de. Licensed under the terms of the [MIT license](LICENSE).
 
 
 [travis-image]: https://secure.travis-ci.org/jkphl/antibot.svg

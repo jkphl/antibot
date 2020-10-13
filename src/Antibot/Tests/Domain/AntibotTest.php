@@ -7,14 +7,14 @@
  * @package    Jkphl\Antibot
  * @subpackage Jkphl\Antibot\Tests\Domain
  * @author     Joschi Kuphal <joschi@kuphal.net> / @jkphl
- * @copyright  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net> / @jkphl
+ * @copyright  Copyright © 2020 Joschi Kuphal <joschi@kuphal.net> / @jkphl
  * @license    http://opensource.org/licenses/MIT The MIT License (MIT)
  */
 
 /***********************************************************************************
  *  The MIT License (MIT)
  *
- *  Copyright © 2018 Joschi Kuphal <joschi@kuphal.net>
+ *  Copyright © 2020 Joschi Kuphal <joschi@kuphal.net>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -41,6 +41,8 @@ use Jkphl\Antibot\Domain\Contract\ValidationResultInterface;
 use Jkphl\Antibot\Domain\Contract\ValidatorInterface;
 use Jkphl\Antibot\Domain\Exceptions\BlacklistValidationException;
 use Jkphl\Antibot\Domain\Exceptions\ErrorException;
+use Jkphl\Antibot\Domain\Exceptions\InvalidArgumentException;
+use Jkphl\Antibot\Domain\Exceptions\RuntimeException;
 use Jkphl\Antibot\Domain\Exceptions\SkippedValidationException;
 use Jkphl\Antibot\Domain\Exceptions\WhitelistValidationException;
 use Jkphl\Antibot\Ports\ValidationResult;
@@ -57,12 +59,11 @@ class AntibotTest extends AbstractTestBase
 {
     /**
      * General test
-     *
-     * @expectedException \Jkphl\Antibot\Domain\Exceptions\RuntimeException
-     * @expectedExceptionCode 1544191654
      */
     public function testAntibot(): void
     {
+        $this->expectExceptionCode(1544191654);
+        $this->expectException(RuntimeException::class);
         $session = md5(rand());
         $antibot = new Antibot($session, 'customPrefix');
         $this->assertInstanceOf(Antibot::class, $antibot);
@@ -78,12 +79,11 @@ class AntibotTest extends AbstractTestBase
 
     /**
      * Test uninitialized data
-     *
-     * @expectedException \Jkphl\Antibot\Domain\Exceptions\RuntimeException
-     * @expectedExceptionCode 1544191654
      */
     public function testUnitializedData(): void
     {
+        $this->expectExceptionCode(1544191654);
+        $this->expectException(RuntimeException::class);
         $antibot = new Antibot(md5(rand()));
 
         $antibot->getData();
@@ -91,12 +91,11 @@ class AntibotTest extends AbstractTestBase
 
     /**
      * Parameter scope test
-     *
-     * @expectedException \Jkphl\Antibot\Domain\Exceptions\InvalidArgumentException
-     * @expectedExceptionCode 1546963356
      */
     public function testParameterScope(): void
     {
+        $this->expectExceptionCode(1546963356);
+        $this->expectException(InvalidArgumentException::class);
         $antibot = new Antibot(md5(rand()));
         $this->assertInstanceOf(Antibot::class, $antibot);
         $antibot->validateRequest(
