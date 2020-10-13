@@ -1,6 +1,7 @@
 language: php
 php:
-  - 7.2
+  - 7.3
+  - 7.4
 env:
     - APP_ENV=development CC_TEST_REPORTER_ID=a8357ca942e8263ba7b9144f3375674cb4ce7fa9f2edb0b385182f6fb91dec8e
 matrix:
