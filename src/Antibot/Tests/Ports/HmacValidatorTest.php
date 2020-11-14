@@ -36,6 +36,7 @@
 
 namespace Jkphl\Antibot\Tests\Ports;
 
+use Exception;
 use Jkphl\Antibot\Infrastructure\Exceptions\HmacValidationException;
 use Jkphl\Antibot\Ports\Validators\HmacValidator;
 use Jkphl\Antibot\Tests\AbstractTestBase;
@@ -51,6 +52,8 @@ class HmacValidatorTest extends AbstractTestBase
     /**
      * Test the general HMAC validation
      *
+     * @return void
+     * @throws Exception
      */
     public function testGeneralValidation(): void
     {
@@ -76,6 +79,9 @@ class HmacValidatorTest extends AbstractTestBase
 
     /**
      * Test the HMAC request method order validation
+     *
+     * @return void
+     * @throws Exception
      */
     public function testRequestMethodOrderValidation(): void
     {
@@ -105,6 +111,9 @@ class HmacValidatorTest extends AbstractTestBase
 
     /**
      * Test the HMAC request timing validation
+     *
+     * @return void
+     * @throws Exception
      */
     public function testRequestTimingValidation(): void
     {
@@ -154,6 +163,9 @@ class HmacValidatorTest extends AbstractTestBase
 
     /**
      * Test the armoring
+     *
+     * @return void
+     * @throws Exception
      */
     public function testArmor(): void
     {

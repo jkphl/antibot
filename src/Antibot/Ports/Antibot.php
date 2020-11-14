@@ -36,6 +36,7 @@
 
 namespace Jkphl\Antibot\Ports;
 
+use Jkphl\Antibot\Domain\Contract\ValidationResultInterface;
 use Jkphl\Antibot\Ports\Exceptions\InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -84,10 +85,10 @@ class Antibot extends \Jkphl\Antibot\Domain\Antibot
      *
      * @param ServerRequestInterface $request Request
      *
-     * @return ValidationResult Validation result
+     * @return ValidationResultInterface Validation result
      * @api
      */
-    public function validate(ServerRequestInterface $request): ValidationResult
+    public function validate(ServerRequestInterface $request): ValidationResultInterface
     {
         return parent::validateRequest($request, new ValidationResult());
     }

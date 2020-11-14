@@ -36,6 +36,7 @@
 
 namespace Jkphl\Antibot\Tests\Ports;
 
+use Exception;
 use Jkphl\Antibot\Ports\Antibot;
 use Jkphl\Antibot\Ports\Exceptions\InvalidArgumentException;
 use Jkphl\Antibot\Ports\LookupStrategy\ArrayLookupStrategy;
@@ -52,8 +53,11 @@ class AntibotTest extends AbstractTestBase
 {
     /**
      * Test the prefix
+     *
+     * @return void
+     * @throws Exception
      */
-    public function testPrefix()
+    public function testPrefix(): void
     {
         $this->expectExceptionCode(1544118177);
         $this->expectException(InvalidArgumentException::class);
@@ -71,8 +75,11 @@ class AntibotTest extends AbstractTestBase
 
     /**
      * Test the validation with some basic validators
+     *
+     * @return void
+     * @throws Exception
      */
-    public function testValidation()
+    public function testValidation(): void
     {
         $antibot = $this->createAntibot();
         $this->assertInstanceOf(Antibot::class, $antibot);

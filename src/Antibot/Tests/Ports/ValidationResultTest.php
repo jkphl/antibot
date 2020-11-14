@@ -34,7 +34,7 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ***********************************************************************************/
 
-namespace Jkphl\Antibot\Tests\Domain;
+namespace Jkphl\Antibot\Tests\Ports;
 
 use Jkphl\Antibot\Domain\Exceptions\ErrorException;
 use Jkphl\Antibot\Ports\ValidationResult;
